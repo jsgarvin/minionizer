@@ -1,14 +1,15 @@
 module Minionizer
   class Minionization
-    attr_reader :arguments
+    attr_reader :arguments, :config
 
-    def initialize(arguments)
+    def initialize(arguments, config)
       @arguments = arguments
+      @config = config
     end
 
     def call
-      if mission_exists?
-        execute_mission
+      if roles_exist?
+        execute_roles
       else
         raise Minionizer::Errors::MissionNotFound.new("Failed to locate file #{mission_path}")
       end
@@ -18,19 +19,31 @@ module Minionizer
     private
     #######
 
-    def mission_exists?
-      File.exists?(mission_path)
+    def roles_exist?
+      missing_roles.empty?
     end
 
-    def execute_mission
-      require mission_path
+    def missing_roles
+      roles.select { |role| ! role_exists?(role) }
     end
 
-    def mission_path
-      File.expand_path("./missions/#{first_argument}.rb")
+    def roles
+      @roles ||= config.minions[minion]['roles']
     end
 
-    def first_argument
+    def role_exists?(role)
+      File.exists?(role_path(role))
+    end
+
+    def execute_roles
+      roles.each { |role| require role_path(role) }
+    end
+
+    def role_path(role)
+      File.expand_path("./roles/#{role}.rb")
+    end
+
+    def minion
       @first_argument ||= arguments.pop
     end
   end

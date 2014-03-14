@@ -14,7 +14,7 @@ module Minionizer
         let(:minions) { { 'foo.bar.com' => 1 } }
 
         before do
-          write_file('config/minions.yml', minions.to_yaml
+          write_file('config/minions.yml', minions.to_yaml)
         end
 
         it 'loads the minions' do

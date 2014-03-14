@@ -26,8 +26,8 @@ module Minionizer
       FakeFS::FileSystem.clear
     end
 
-    def write_mission(name)
-      write_file("missions/#{name}.rb")
+    def write_role_file(name)
+      write_file("roles/#{name}.rb")
     end
 
     def write_file(path, contents = '')

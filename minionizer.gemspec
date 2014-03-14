@@ -8,7 +8,11 @@ Gem::Specification.new do |s|
   s.email = ["jon@5valleys.com"]
   s.homepage = "https://github.com/jsgarvin/minionizer"
   s.summary = %q{Simple infrastructure setup and management.}
-  s.description = %q{Minionizer allows you to software installations and configurations on one or more machines without a lot of bloat or a steep learning curve.}
+  s.description = %q{Minionizer allows you to manage software installations and configurations on one or more machines without a lot of bloat or a steep learning curve.}
+
+  s.add_dependency('activesupport')
+
+  s.add_development_dependency('mocha')
 
   s.files = `git ls-files`.split("\n")
   s.test_files = `git ls-files -- test/*`.split("\n")

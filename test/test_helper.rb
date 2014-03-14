@@ -27,12 +27,12 @@ module Minionizer
     end
 
     def write_mission(name)
-      FileUtils.mkdir_p missions_path
-      File.open("#{missions_path}/#{name}.rb", 'w') { |mission| mission.write '' }
+      write_file("missions/#{name}.rb")
     end
 
-    def missions_path
-      @missions_path ||= File.expand_path('./missions')
+    def write_file(path, contents = '')
+      FileUtils.mkdir_p File.dirname(path)
+      File.open("./#{path}", 'w') { |file| file.write(contents) }
     end
 
   end

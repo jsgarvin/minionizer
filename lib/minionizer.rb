@@ -1,4 +1,3 @@
 require 'active_support/inflector'
-
-require_relative 'minionizer/minionization'
-require_relative 'minionizer/errors'
+require 'yaml'
+Dir[File.dirname(__FILE__) + '/minionizer/*.rb'].each { |file| require file }

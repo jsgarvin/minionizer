@@ -4,30 +4,40 @@ module Minionizer
   class MinionizationTest < MiniTest::Unit::TestCase
 
     describe Minionization do
-
-      let(:mock_config) { MiniTest::Mock.new }
-      let(:role_name) { 'vpn_server' }
       let(:minion_name) { 'foo.bar.com' }
-      let(:arguments) { [minion_name] }
-      let(:minionization) { Minionization.new(arguments, mock_config) }
+      let(:config) { Configuration.instance }
+      let(:role_name) { 'web_server' }
+      let(:role_class) {
+        begin
+          Object.const_get(role_name.classify)
+        rescue NameError
+          Object.const_set(role_name.classify, Class.new)
+        end
+      }
+      let(:minionization) { Minionization.new(arguments, config) }
+      let(:minions) {{ minion_name => { 'roles' => [role_name] }}}
 
       before do
         write_role_file(role_name)
+        config.stubs(:minions).returns(minions)
       end
 
-      describe 'calling with a valid role name' do
-        let(:minions) {{ minion_name => { 'roles' => [role_name] }}}
-
-        before do
-          mock_config.expect(:minions, minions)
-        end
-
-        after do
-          mock_config.verify
-        end
+      describe 'calling with a valid minion name' do
+        let(:arguments) { [minion_name] }
 
         it 'executes a role' do
           minionization.expects(:require).with("/roles/#{role_name}.rb")
+          role_class.any_instance.expects(:call).with(minionization)
+          minionization.call
+        end
+      end
+
+      describe 'calling with a valid role' do
+        let(:arguments) { [role_name] }
+
+        it 'executes the role once for each minion' do
+          minionization.expects(:require).with("/roles/#{role_name}.rb")
+          role_class.any_instance.expects(:call).with(minionization)
           minionization.call
         end
       end

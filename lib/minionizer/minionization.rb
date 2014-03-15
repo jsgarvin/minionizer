@@ -8,42 +8,51 @@ module Minionizer
     end
 
     def call
-      if roles_exist?
-        execute_roles
-      else
-        raise Minionizer::Errors::MissionNotFound.new("Failed to locate file #{mission_path}")
-      end
+      execute_roles
     end
 
     #######
     private
     #######
 
-    def roles_exist?
-      missing_roles.empty?
-    end
-
-    def missing_roles
-      roles.select { |role| ! role_exists?(role) }
-    end
-
-    def roles
-      @roles ||= config.minions[minion]['roles']
-    end
-
-    def role_exists?(role)
-      File.exists?(role_path(role))
-    end
-
     def execute_roles
-      roles.each { |role| require role_path(role) }
+      minions.each do |minion|
+        role_names(minion).each { |name| execute_role(name) }
+      end
     end
 
-    def role_path(role)
-      File.expand_path("./roles/#{role}.rb")
+    def role_names(minion)
+      @role_names ||= config.minions[minion]['roles']
     end
 
-    def minion
+    def execute_role(name)
+      require role_path(name)
+      name.classify.constantize.new.call(self)
+    end
+
+    def role_path(name)
+      File.expand_path("./roles/#{name}.rb")
+    end
+
+    def minions
+      if first_argument_is_a_minion?
+        [first_argument]
+      else
+        minions_for_role(first_argument)
+      end
+    end
+
+    def first_argument_is_a_minion?
+      config.minions.include?(first_argument)
+    end
+
+    def minions_for_role(role_name)
+     config.minions.keys.select do |minion|
+       config.minions[minion]['roles'].include?(role_name)
+     end
+    end
+
+    def first_argument
       @first_argument ||= arguments.pop
     end
   end

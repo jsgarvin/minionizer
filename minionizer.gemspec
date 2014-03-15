@@ -7,8 +7,8 @@ Gem::Specification.new do |s|
   s.authors = ["Jonathan S. Garvin"]
   s.email = ["jon@5valleys.com"]
   s.homepage = "https://github.com/jsgarvin/minionizer"
-  s.summary = %q{Simple infrastructure setup and management.}
-  s.description = %q{Minionizer allows you to manage software installations and configurations on one or more machines without a lot of bloat or a steep learning curve.}
+  s.summary = %q{Simple server provisioning and management.}
+  s.description = %q{Minionizer aims to be a light weight server provisioning tool without bloat or steep learning curves.}
 
   s.add_dependency('activesupport')
 

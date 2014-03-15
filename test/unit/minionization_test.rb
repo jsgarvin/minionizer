@@ -7,13 +7,7 @@ module Minionizer
       let(:minion_name) { 'foo.bar.com' }
       let(:config) { Configuration.instance }
       let(:role_name) { 'web_server' }
-      let(:role_class) {
-        begin
-          Object.const_get(role_name.classify)
-        rescue NameError
-          Object.const_set(role_name.classify, Class.new)
-        end
-      }
+      let(:role_class) { get_anonymous_class(role_name) }
       let(:minionization) { Minionization.new(arguments, config) }
       let(:minions) {{ minion_name => { 'roles' => [role_name] }}}
 

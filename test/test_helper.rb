@@ -35,6 +35,12 @@ module Minionizer
       File.open("./#{path}", 'w') { |file| file.write(contents) }
     end
 
+    def get_anonymous_class(name)
+      Object.const_get(name.classify)
+    rescue NameError
+      Object.const_set(name.classify, Class.new)
+    end
+
   end
 end
 

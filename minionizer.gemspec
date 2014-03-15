@@ -11,10 +11,10 @@ Gem::Specification.new do |s|
   s.description = %q{Minionizer aims to be a light weight server provisioning tool without bloat or steep learning curves.}
 
   s.add_dependency('activesupport')
-
-  s.add_development_dependency('mocha')
+  s.add_dependency('net-ssh')
 
   s.add_development_dependency('fakefs')
+  s.add_development_dependency('mocha')
 
   s.files = `git ls-files`.split("\n")
   s.test_files = `git ls-files -- test/*`.split("\n")

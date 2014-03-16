@@ -1,10 +1,11 @@
 module Minionizer
   class Minionization
-    attr_reader :arguments, :config
+    attr_reader :arguments, :config, :minion_constructor
 
-    def initialize(arguments, config)
+    def initialize(arguments, config, minion_constructor = Minion)
       @arguments = arguments
       @config = config
+      @minion_constructor = minion_constructor
     end
 
     def call
@@ -17,17 +18,13 @@ module Minionizer
 
     def execute_roles
       minions.each do |minion|
-        role_names(minion).each { |name| execute_role(name) }
+        minion.roles.each { |name| execute_role(minion.session, name) }
       end
     end
 
-    def role_names(minion)
-      @role_names ||= config.minions[minion]['roles']
-    end
-
-    def execute_role(name)
+    def execute_role(session, name)
       require role_path(name)
-      name.classify.constantize.new.call(self)
+      name.classify.constantize.new.call(session)
     end
 
     def role_path(name)
@@ -36,7 +33,7 @@ module Minionizer
 
     def minions
       if first_argument_is_a_minion?
-        [first_argument]
+        [construct_minion(first_argument)]
       else
         minions_for_role(first_argument)
       end
@@ -47,9 +44,17 @@ module Minionizer
     end
 
     def minions_for_role(role_name)
-     config.minions.keys.select do |minion|
-       config.minions[minion]['roles'].include?(role_name)
-     end
+      minion_names_for_role(role_name).map {|name| construct_minion(name) }
+    end
+
+    def construct_minion(name)
+      minion_constructor.new(name, config)
+    end
+
+    def minion_names_for_role(role_name)
+      config.minions.keys.select do |minion|
+        config.minions[minion]['roles'].include?(role_name)
+      end
     end
 
     def first_argument

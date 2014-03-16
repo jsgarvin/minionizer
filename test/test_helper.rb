@@ -35,12 +35,35 @@ module Minionizer
       File.open("./#{path}", 'w') { |file| file.write(contents) }
     end
 
-    def get_anonymous_class(name)
+    def get_dynamic_class(name)
       Object.const_get(name.classify)
     rescue NameError
       Object.const_set(name.classify, Class.new)
     end
 
+  end
+end
+
+module MiniTest
+  class NamedMock < Mock
+    attr_reader :name
+
+    def initialize(name)
+      @name = name
+      super()
+    end
+
+    # Because you ought to be able to
+    # test two effing mocks for equality.
+    def ==(x)
+      object_id == x.object_id
+    end
+
+    def method_missing(sym, *args, &block)
+      super(sym, *args, &block)
+    rescue NoMethodError, MockExpectationError, ArgumentError => error
+      raise(error.class, "#{error.message} (mock:#{name}) ")
+    end
   end
 end
 

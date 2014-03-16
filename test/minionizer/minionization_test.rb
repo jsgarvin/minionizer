@@ -4,34 +4,38 @@ module Minionizer
   class MinionizationTest < MiniTest::Unit::TestCase
 
     describe Minionization do
-      let(:minion_name) { 'foo.bar.com' }
+      let(:fqdn) { 'foo.bar.com' }
       let(:config) { Configuration.instance }
       let(:role_name) { 'web_server' }
-      let(:role_class) { get_anonymous_class(role_name) }
-      let(:minionization) { Minionization.new(arguments, config) }
-      let(:minions) {{ minion_name => { 'roles' => [role_name] }}}
+      let(:role_class) { get_dynamic_class(role_name) }
+      let(:minion) { MiniTest::NamedMock.new('minion') }
+      let(:minionization) { Minionization.new(arguments, config, minion_constructor) }
+      let(:minion_roles) {{ fqdn => { 'roles' => [role_name] }}}
+      let(:minion_constructor) { Struct.new(:fqdn, :config) }
 
       before do
-        write_role_file(role_name)
-        config.stubs(:minions).returns(minions)
+        config.stubs(:minions).returns(minion_roles)
+        minion.expect(:roles, [role_name])
+        minion_constructor.expects(:new).with(fqdn, config).returns(minion)
+        role_class.any_instance.expects(:call).with(session)
+        minionization.expects(:require).with("/roles/#{role_name}.rb")
+        minion.expect(:session, session)
       end
 
       describe 'calling with a valid minion name' do
-        let(:arguments) { [minion_name] }
+        let(:session) { MiniTest::NamedMock.new('session') }
+        let(:arguments) { [fqdn] }
 
         it 'executes a role' do
-          minionization.expects(:require).with("/roles/#{role_name}.rb")
-          role_class.any_instance.expects(:call).with(minionization)
           minionization.call
         end
       end
 
       describe 'calling with a valid role' do
+        let(:session) { MiniTest::NamedMock.new('session') }
         let(:arguments) { [role_name] }
 
         it 'executes the role once for each minion' do
-          minionization.expects(:require).with("/roles/#{role_name}.rb")
-          role_class.any_instance.expects(:call).with(minionization)
           minionization.call
         end
       end

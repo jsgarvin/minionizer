@@ -2,10 +2,10 @@ module Minionizer
   class Session
     attr_reader :fqdn, :username, :password, :connector
 
-    def initialize(fqdn, username, password, connector = Net::SSH)
+    def initialize(fqdn, credentials, connector = Net::SSH)
       @fqdn = fqdn
-      @username = username
-      @password = password
+      @username = credentials[:username]
+      @password = credentials[:password]
       @connector = connector
     end
 

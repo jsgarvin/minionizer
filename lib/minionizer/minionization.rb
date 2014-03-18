@@ -9,27 +9,14 @@ module Minionizer
     end
 
     def call
-      execute_roles
-    end
-
-    #######
-    private
-    #######
-
-    def execute_roles
       minions.each do |minion|
         minion.roles.each { |name| execute_role(minion.session, name) }
       end
     end
 
-    def execute_role(session, name)
-      require role_path(name)
-      name.classify.constantize.new.call(session)
-    end
-
-    def role_path(name)
-      File.expand_path("./roles/#{name}.rb")
-    end
+    #######
+    private
+    #######
 
     def minions
       if first_argument_is_a_minion?
@@ -37,6 +24,11 @@ module Minionizer
       else
         minions_for_role(first_argument)
       end
+    end
+
+    def execute_role(session, name)
+      require role_path(name)
+      name.classify.constantize.new.call(session)
     end
 
     def first_argument_is_a_minion?
@@ -49,6 +41,10 @@ module Minionizer
 
     def construct_minion(name)
       minion_constructor.new(name, config)
+    end
+
+    def role_path(name)
+      File.expand_path("./roles/#{name}.rb")
     end
 
     def minion_names_for_role(role_name)

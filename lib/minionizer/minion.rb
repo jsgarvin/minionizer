@@ -9,12 +9,26 @@ module Minionizer
     end
 
     def session
-      @session ||= session_constructor.new(fqdn, config.ssh_credentials)
+      @session ||= session_constructor.new(fqdn, ssh_credentials)
     end
 
     def roles
-      config.minions[fqdn]['roles']
+      my_config['roles']
     end
 
+    #######
+    private
+    #######
+
+    def ssh_credentials
+      {
+        'username' => my_config['ssh']['username'],
+        'password' => my_config['ssh']['password']
+      }
+    end
+
+    def my_config
+      config.minions[fqdn]
+    end
   end
 end

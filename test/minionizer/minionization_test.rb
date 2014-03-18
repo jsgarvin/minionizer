@@ -12,6 +12,7 @@ module Minionizer
       let(:minionization) { Minionization.new(arguments, config, minion_constructor) }
       let(:minion_roles) {{ fqdn => { 'roles' => [role_name] }}}
       let(:minion_constructor) { Struct.new(:fqdn, :config) }
+      let(:session) { MiniTest::NamedMock.new('session') }
 
       before do
         config.stubs(:minions).returns(minion_roles)
@@ -23,7 +24,6 @@ module Minionizer
       end
 
       describe 'calling with a valid minion name' do
-        let(:session) { MiniTest::NamedMock.new('session') }
         let(:arguments) { [fqdn] }
 
         it 'executes a role' do
@@ -32,7 +32,6 @@ module Minionizer
       end
 
       describe 'calling with a valid role' do
-        let(:session) { MiniTest::NamedMock.new('session') }
         let(:arguments) { [role_name] }
 
         it 'executes the role once for each minion' do

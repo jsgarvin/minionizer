@@ -10,24 +10,27 @@ module Minionizer
     end
 
     def exec(*commands)
-      connection.open_channel do |channel|
-        commands.each do |command|
-          channel.exec(command) do |x, s|
-            channel.on_data do |z, a|
-              puts a
-            end
-          end
-        end
+      commands.map do |command|
+        exec_single_command(command)
       end
-      connection.loop
     end
 
     #######
     private
     #######
 
+    def exec_single_command(command)
+      connection.exec(command) do |channel, stream, output|
+        if stream == :stdout
+          return output.strip
+        else
+          raise StandardError.new(output)
+        end
+      end
+      connection.loop
+    end
+
     def connection
-      puts "Opening Connection: #{fqdn}:#{username}:#{password}"
       @connection ||= connector.start(fqdn, username, password: password)
     end
   end

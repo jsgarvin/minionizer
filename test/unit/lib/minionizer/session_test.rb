@@ -7,10 +7,10 @@ module Minionizer
       let(:fqdn) { 'foo.bar.com' }
       let(:username) { 'foo' }
       let(:password) { 'bar' }
-      let(:credentials) {{ username: username, password: password }}
-      let(:connector) { MiniTest::Mock.new }
-      let(:channel) { MiniTest::Mock.new }
-      let(:connection) { MiniTest::Mock.new }
+      let(:credentials) {{ 'username' => username, 'password' => password }}
+      let(:connector) { MiniTest::NamedMock.new(:connector) }
+      let(:channel) { MiniTest::NamedMock.new(:channel) }
+      let(:connection) { MiniTest::NamedMock.new(:connection) }
       let(:session) { Session.new(fqdn, credentials, connector) }
 
       it 'instantiates' do
@@ -23,7 +23,8 @@ module Minionizer
 
         it 'starts the connector' do
           connector.expect(:start, connection, start_args)
-          connection.expect(:open_channel, channel)
+          connection.expect(:exec, true, [commands])
+          connection.expect(:loop, true)
           commands.each {|command| channel.expect(:exec, true, [command]) }
           session.exec(commands)
         end

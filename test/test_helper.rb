@@ -2,7 +2,7 @@ require 'rubygems'
 require 'minitest/autorun'
 require 'fakefs/safe'
 
-require 'minionizer'
+require_relative '../lib/minionizer'
 
 module Minionizer
   class MiniTest::Unit::TestCase
@@ -24,6 +24,10 @@ module Minionizer
     def initialize_fakefs
       FakeFS.activate!
       FakeFS::FileSystem.clear
+    end
+
+    def initialize_minion
+      @@previously_initialized ||= `cd #{File.dirname(__FILE__)}; vagrant up`
     end
 
     def write_role_file(name)

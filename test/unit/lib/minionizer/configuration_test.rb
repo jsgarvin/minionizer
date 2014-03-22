@@ -5,7 +5,7 @@ module Minionizer
 
     describe Configuration do
       let(:config) { Configuration.instance }
-      let(:minions) {{ 'foo.bar.com' => { :ssh => { :username => 'foot', :password => 'bar' } } }}
+      let(:minions) {{ 'foo.bar.com' => { :ssh => { :username => 'foo', :password => 'bar' } } }}
 
       before do
         write_file('config/minions.yml', minions.to_yaml)

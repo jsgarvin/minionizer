@@ -26,6 +26,9 @@ module Minionizer
     def initialize_fakefs
       FakeFS.activate!
       FakeFS::FileSystem.clear
+      Kernel.class_eval do
+        alias_method :require, :fake_require
+      end
     end
 
     def minion_available?
@@ -34,6 +37,10 @@ module Minionizer
       end
     rescue Errno::ECONNREFUSED, Timeout::Error
       return false
+    end
+
+    def initialize_minion
+      @@previously_initialized ||= `cd #{File.dirname(__FILE__)}; vagrant up`
     end
 
     def write_role_file(name)
@@ -52,6 +59,14 @@ module Minionizer
     end
 
   end
+end
+
+module Kernel
+
+  def fake_require(path)
+    File.open(path, "r") {|f| Object.class_eval f.read, path, 1 }
+  end
+
 end
 
 module MiniTest

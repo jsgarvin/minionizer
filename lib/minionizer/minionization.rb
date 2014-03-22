@@ -28,7 +28,7 @@ module Minionizer
 
     def execute_role(session, name)
       require role_path(name)
-      name.classify.constantize.new.call(session)
+      name.classify.constantize.new(session).call
     end
 
     def first_argument_is_a_minion?

@@ -13,12 +13,14 @@ module Minionizer
       let(:minion_roles) {{ fqdn => { 'roles' => [role_name] }}}
       let(:minion_constructor) { Struct.new(:fqdn, :config) }
       let(:session) { MiniTest::NamedMock.new('session') }
+      let(:role) { MiniTest::NamedMock.new('role') }
 
       before do
         config.stubs(:minions).returns(minion_roles)
         minion.expect(:roles, [role_name])
         minion_constructor.expects(:new).with(fqdn, config).returns(minion)
-        role_class.any_instance.expects(:call).with(session)
+        role_class.expects(:new).with(session).returns(role)
+        role.expect(:call, true)
         minionization.expects(:require).with("/roles/#{role_name}.rb")
         minion.expect(:session, session)
       end

@@ -10,24 +10,48 @@ module Minionizer
       let(:credentials) {{ 'username' => username, 'password' => password }}
       let(:connector) { MiniTest::NamedMock.new(:connector) }
       let(:channel) { MiniTest::NamedMock.new(:channel) }
-      let(:connection) { MiniTest::NamedMock.new(:connection) }
+      let(:connection) { 'MockConnection' }
       let(:session) { Session.new(fqdn, credentials, connector) }
+      let(:start_args) { [fqdn, username, { password: password }]}
 
       it 'instantiates' do
         assert_kind_of(Session, session)
       end
 
-      describe 'opening a connection' do
-        let(:commands) { %w(foo bar) }
-        let(:start_args) { [fqdn, username, { password: password }]}
+      describe 'running commands' do
+        let(:command) { 'foobar' }
 
-        it 'starts the connector' do
+        before do
           connector.expect(:start, connection, start_args)
-          connection.expect(:exec, true, [commands])
-          connection.expect(:loop, true)
-          commands.each {|command| channel.expect(:exec, true, [command]) }
-          session.exec(commands)
         end
+
+        describe 'when a single command is passed' do
+
+          before do
+            connection.expects(:exec).with(command).returns("#{command} pong")
+            connection.expects(:loop).returns('fixme')
+          end
+
+          it 'returns a single result' do
+            assert_kind_of(String, session.exec(command))
+          end
+        end
+
+        describe 'when multiple commands are passed' do
+          let(:commands) { %w(foo bar) }
+
+          before do
+            commands.each do |command|
+              connection.expects(:exec).with(command).returns("#{command} pong")
+            end
+            connection.expects(:loop).twice.returns('fixme')
+          end
+
+          it 'returns multiple results' do
+            assert_kind_of(Array, session.exec(commands))
+          end
+        end
+
       end
 
     end

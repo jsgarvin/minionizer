@@ -17,7 +17,7 @@ module Minionizer
       end
 
       it 'successfully retrieves the hostname from a remote system' do
-        assert_equal('precise32', session.exec('hostname').first)
+        assert_equal('precise32', session.exec(:hostname))
       end
 
       describe 'full integration' do
@@ -40,7 +40,7 @@ module Minionizer
                              end
 
                              def hostname
-                               @hostname ||= session.exec(:hostname).first
+                               @hostname ||= session.exec(:hostname)
                              end
                            end
                           endstr

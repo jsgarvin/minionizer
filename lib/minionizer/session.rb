@@ -9,9 +9,11 @@ module Minionizer
       @connector = connector
     end
 
-    def exec(*commands)
-      commands.map do |command|
-        exec_single_command(command)
+    def exec(arg)
+      if arg.is_a?(Array)
+        arg.map { |command| exec_single_command(command) }
+      else
+        exec_single_command(arg)
       end
     end
 

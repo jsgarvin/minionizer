@@ -1,6 +1,8 @@
 require 'rubygems'
 require 'minitest/autorun'
 require 'fakefs/safe'
+require 'socket'
+require 'timeout'
 
 require_relative '../lib/minionizer'
 
@@ -26,8 +28,12 @@ module Minionizer
       FakeFS::FileSystem.clear
     end
 
-    def initialize_minion
-      @@previously_initialized ||= `cd #{File.dirname(__FILE__)}; vagrant up`
+    def minion_available?
+      Timeout.timeout(1) do
+        @@minion_available ||= TCPSocket.new('192.168.49.181', 22)
+      end
+    rescue Errno::ECONNREFUSED, Timeout::Error
+      return false
     end
 
     def write_role_file(name)

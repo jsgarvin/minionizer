@@ -11,7 +11,7 @@ module Minionizer
       let(:session) { Session.new(fqdn, credentials) }
 
       before do
-        initialize_minion
+        skip unless minion_available?
       end
 
       it 'successfully retrieves the hostname from a remote system' do

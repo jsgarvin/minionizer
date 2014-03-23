@@ -12,11 +12,13 @@ Rake::TestTask.new(:test) do |t|
   t.verbose = true
 end
 
-#Rake::TestTask.new(:start_test_vm) do |t|
 namespace :test do
   namespace :vm do
     task :start do
       relay_output(vagrant_command(:up))
+      unless snapshot_plugin_installed?
+        relay_output(vagrant_command('plugin install vagrant-vbox-snapshot'))
+      end
     end
     task :stop do
       relay_output(vagrant_command(:halt))
@@ -25,7 +27,26 @@ namespace :test do
 end
 
 def vagrant_command(command)
-  "cd #{File.expand_path('../test', __FILE__)}; vagrant #{command}"
+  "cd #{vagrant_path}; vagrant #{command}"
+end
+
+def snapshot_plugin_installed?
+  vagrant_plugins['vagrant-vbox-snapshot'] &&
+    Gem::Version.new(vagrant_plugins['vagrant-vbox-snapshot']) >= Gem::Version.new('0.0.4')
+end
+
+def vagrant_plugins
+  Hash.new.tap do |hash|
+    `cd #{vagrant_path}; vagrant plugin list`.split("\n").each do |plugin_string|
+      if plugin_string.match(/([^\s]+)\s\(([0-9\.]+)/)
+        hash[$1] = $2
+      end
+    end
+  end
+end
+
+def vagrant_path
+  File.expand_path('../test', __FILE__)
 end
 
 def relay_output(command)

@@ -1,3 +1,5 @@
+[![Code Climate](https://codeclimate.com/github/jsgarvin/minionizer.png)](https://codeclimate.com/github/jsgarvin/minionizer)
+
 # Minionizer
 
 Minionizer aims to be a light weight, yet powerful, server provisioning tool with minimum learning

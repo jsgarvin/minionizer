@@ -18,6 +18,7 @@ namespace :test do
       relay_output(vagrant_command(:up))
       unless snapshot_plugin_installed?
         relay_output(vagrant_command('plugin install vagrant-vbox-snapshot'))
+        relay_output(vagrant_command('snapshot take blank-test-slate'))
       end
     end
     task :stop do

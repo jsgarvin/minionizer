@@ -14,6 +14,7 @@ module Minionizer
 
       before do
         skip unless minion_available?
+        roll_back_to_blank_snapshot
       end
 
       it 'successfully retrieves the hostname from a remote system' do

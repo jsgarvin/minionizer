@@ -43,6 +43,12 @@ module Minionizer
       @@previously_initialized ||= `cd #{File.dirname(__FILE__)}; vagrant up`
     end
 
+    def roll_back_to_blank_snapshot
+      FakeFS.deactivate!
+      `cd #{File.dirname(__FILE__)}; vagrant snapshot go blank-test-slate`
+      FakeFS.activate!
+    end
+
     def write_role_file(name)
       write_file("roles/#{name}.rb")
     end

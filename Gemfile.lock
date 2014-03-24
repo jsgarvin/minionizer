@@ -2,8 +2,8 @@ PATH
   remote: .
   specs:
     minionizer (0.0.1)
-      activesupport
-      net-ssh
+      activesupport (~> 4.0)
+      net-ssh (~> 2.8)
 
 GEM
   remote: http://rubygems.org/
@@ -31,6 +31,6 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
-  fakefs
+  fakefs (~> 0.5)
   minionizer!
-  mocha
+  mocha (~> 1.0)

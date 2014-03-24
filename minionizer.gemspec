@@ -15,6 +15,7 @@ Gem::Specification.new do |s|
 
   s.add_development_dependency('fakefs', '~> 0.5')
   s.add_development_dependency('mocha', '~> 1.0')
+  s.add_development_dependency('rake', '~> 10.0')
 
   s.files = `git ls-files`.split("\n")
   s.test_files = `git ls-files -- test/*`.split("\n")

@@ -18,6 +18,9 @@ namespace :test do
       relay_output(vagrant_command(:up))
       unless snapshot_plugin_installed?
         relay_output(vagrant_command('plugin install vagrant-vbox-snapshot'))
+      end
+      unless test_snapshot_exists?
+        sleep 5
         relay_output(vagrant_command('snapshot take blank-test-slate'))
       end
     end
@@ -36,12 +39,26 @@ def snapshot_plugin_installed?
     Gem::Version.new(vagrant_plugins['vagrant-vbox-snapshot']) >= Gem::Version.new('0.0.4')
 end
 
+def test_snapshot_exists?
+  vagrant_snapshots.include?('blank-test-slate')
+end
+
 def vagrant_plugins
   Hash.new.tap do |hash|
     `cd #{vagrant_path}; vagrant plugin list`.split("\n").each do |plugin_string|
       if plugin_string.match(/([^\s]+)\s\(([0-9\.]+)/)
         hash[$1] = $2
       end
+    end
+  end
+end
+
+def vagrant_snapshots
+  Array.new.tap do |snapshots|
+    `cd #{vagrant_path}; vagrant snapshot list`.split("\n").each do |snapshot_string|
+       if snapshot_string.match(/Name\: ([^\(]+)/)
+         snapshots << $1 
+       end
     end
   end
 end

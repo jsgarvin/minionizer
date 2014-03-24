@@ -8,9 +8,9 @@ module Minionizer
       let(:username) { 'foo' }
       let(:password) { 'bar' }
       let(:credentials) {{ 'username' => username, 'password' => password }}
-      let(:connector) { MiniTest::NamedMock.new(:connector) }
-      let(:channel) { MiniTest::NamedMock.new(:channel) }
-      let(:connection) { 'MockConnection' }
+      let(:connector) { mock('connector') }
+      let(:channel) { mock('channel') }
+      let(:connection) { mock('connection') }
       let(:session) { Session.new(fqdn, credentials, connector) }
       let(:start_args) { [fqdn, username, { password: password }]}
 
@@ -22,7 +22,7 @@ module Minionizer
         let(:command) { 'foobar' }
 
         before do
-          connector.expect(:start, connection, start_args)
+          connector.expects(:start).with(*start_args).returns(connection)
         end
 
         describe 'when a single command is passed' do

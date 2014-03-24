@@ -64,6 +64,17 @@ module Minionizer
       Object.const_set(name.classify, Class.new)
     end
 
+    def quacks_like(klass)
+      mock("Mock(#{klass.to_s})").tap do |object|
+        object.responds_like(klass)
+      end
+    end
+
+    def quacks_like_instance_of(klass)
+      mock("InstanceMock(#{klass.to_s})").tap do |object|
+        object.responds_like_instance_of(klass)
+      end
+    end
   end
 end
 
@@ -73,29 +84,6 @@ module Kernel
     File.open(path, "r") {|f| Object.class_eval f.read, path, 1 }
   end
 
-end
-
-module MiniTest
-  class NamedMock < Mock
-    attr_reader :name
-
-    def initialize(name)
-      @name = name
-      super()
-    end
-
-    # Because you ought to be able to
-    # test two effing mocks for equality.
-    def ==(x)
-      object_id == x.object_id
-    end
-
-    def method_missing(sym, *args, &block)
-      super(sym, *args, &block)
-    rescue NoMethodError, MockExpectationError, ArgumentError => error
-      raise(error.class, "#{error.message} (mock:#{name}) ")
-    end
-  end
 end
 
 require 'mocha/setup'

@@ -8,7 +8,7 @@ module Minionizer
       let(:credentials) {{ 'username' => username, 'password' => password }}
       let(:config) { Configuration.instance }
       let(:fqdn) { 'foo.bar.com' }
-      let(:session_constructor) { Struct.new(:fqdn, :credentials) }
+      let(:session_constructor) { quacks_like(Session) }
       let(:minion) { Minion.new(fqdn, config, session_constructor) }
       let(:roles) { %w(foo bar) }
       let (:minion_config) {{ fqdn => { 'roles' => roles , 'ssh' => credentials } }}
@@ -22,7 +22,7 @@ module Minionizer
       end
 
       describe '#session' do
-        let(:session) { MiniTest::NamedMock.new('session') }
+        let(:session) { quacks_like_instance_of(Session) }
 
         it 'creates a session' do
           session_constructor.expects(:new).with(fqdn, credentials).returns(session)

@@ -4,7 +4,7 @@ module Minionizer
   class RoleTemplateTest < MiniTest::Unit::TestCase
 
     describe RoleTemplate do
-      let(:session) { 'MockSession' }
+      let(:session) { quacks_like_instance_of(Session) }
       let(:template) { RoleTemplate.new(session) }
 
       it 'initilizes' do

@@ -1,13 +1,8 @@
 module Minionizer
-  class FileInjection
-    attr_reader :session
+  class FileInjection < TaskTemplate
 
-    def initialize(session)
-      @session = session
-    end
-
-    def inject(source, target)
-      session.exec("echo '#{contents_from(source)}' > #{target}")
+    def call
+      session.exec("echo '#{contents_from(source_path)}' > #{target_path}")
     end
 
     #######

@@ -1,7 +1,6 @@
 require 'test_helper'
 
 module Minionizer
-  class VictoryLap < StandardError; end
   class MinionTestFailure < StandardError; end
   class AcceptanceTest < MiniTest::Unit::TestCase
 
@@ -29,7 +28,7 @@ module Minionizer
             without_fakefs do
               refute(File.exists?(synced_path_to_injected_file))
             end
-            assert_raises(VictoryLap) do
+            assert_throws(:high_five) do
               minionization.call
             end
             without_fakefs do
@@ -37,7 +36,11 @@ module Minionizer
             end
           ensure
             without_fakefs do
-              File.delete(synced_path_to_injected_file)
+              begin
+                File.delete(synced_path_to_injected_file)
+              rescue
+                warn "Failed to delete: #{synced_path_to_injected_file}"
+              end
             end
           end
         end
@@ -68,8 +71,12 @@ TEST_ROLE = <<-endofstring
 
     def call
       if hostname == 'precise32'
-        Minionizer::FileInjection.new(session).inject('#{INJECTION_SOURCE}','#{INJECTION_TARGET}')
-        raise Minionizer::VictoryLap.new('Shazam!')
+        Minionizer::FileInjection.new(
+          session,
+          source_path: '#{INJECTION_SOURCE}',
+          target_path: '#{INJECTION_TARGET}'
+        ).call
+        throw :high_five
       else
         raise Minionizer::MinionTestFailure.new("Whawhawhaaaa... \#{hostname}")
       end

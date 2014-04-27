@@ -31,10 +31,14 @@ module Minionizer
 
         before do
           refute_directory_exists(path)
+          session.exec("sudo adduser --disabled-password --gecos '#{ownername}'  #{ownername}")
+        end
+
+        after do
+          session.exec("sudo userdel #{ownername}")
         end
 
         it 'creates a folder' do
-          session.exec("sudo adduser --disabled-password --gecos '#{ownername}'  #{ownername}")
           assert_throws(:high_five) { minionization.call }
           assert_directory_exists(path)
           mode = session.exec("stat --format=%a #{path}")[:stdout]
@@ -50,17 +54,35 @@ module Minionizer
         let(:filename) { 'foobar.txt' }
         let(:source_path) { "/some/source/#{filename}" }
         let(:target_path) { "/home/vagrant/#{filename}" }
-        let(:options) {{ source_path: source_path, target_path: target_path }}
+        let(:ownername) { 'otheruser' }
+        let(:options) {{
+          source_path: source_path,
+          target_path: target_path,
+          mode: '0700',
+          owner: ownername,
+          group: ownername
+        }}
         let(:code) { %Q{Minionizer::FileInjection.new( session, #{options}).call} }
 
         before do
           refute_file_exists(target_path)
           write_file(source_path, 'FooBar')
+          session.exec("sudo adduser --disabled-password --gecos '#{ownername}'  #{ownername}")
+        end
+
+        after do
+          session.exec("sudo userdel #{ownername}")
         end
 
         it 'injects a file' do
           assert_throws(:high_five) { minionization.call }
           assert_file_exists(target_path)
+          mode = session.exec("stat --format=%a #{target_path}")[:stdout]
+          assert_equal('700',mode)
+          owner = session.exec("stat --format=%U #{target_path}")[:stdout]
+          assert_equal(ownername, owner)
+          group = session.exec("stat --format=%G #{target_path}")[:stdout]
+          assert_equal(ownername, group)
         end
       end
 
@@ -92,7 +114,7 @@ module Minionizer
       end
 
       def link_exists?(path, parameter = :e)
-        session.exec("[ -#{parameter} #{path} ] && echo 'yes'")[:stdout] == 'yes'
+        session.exec("[ -#{parameter} #{path} ] && echo 'yes' || echo 'no'")[:stdout] == 'yes'
       end
 
     end

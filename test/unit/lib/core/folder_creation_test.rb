@@ -5,10 +5,6 @@ module Minionizer
     describe FolderCreation do
       let(:session) { 'MockSession' }
       let(:path) { '/foo/bar' }
-      let(:mode) { '0700' }
-      let(:ownername) { 'otherowner' }
-      let(:groupname) { 'othergroup' }
-      let(:options) {{ path: path, mode: mode, owner: ownername, group: groupname }}
       let(:folder_creation) { FolderCreation.new(session, options) }
 
       describe '#call' do
@@ -24,6 +20,7 @@ module Minionizer
         end
 
         describe 'mode is provided' do
+          let(:mode) { '0700' }
           let(:options) {{ path: path, mode: mode }}
 
           it 'sets the folder permissions' do
@@ -34,6 +31,7 @@ module Minionizer
         end
 
         describe 'owner is provided' do
+          let(:ownername) { 'otherowner' }
           let(:options) {{ path: path, owner: ownername }}
 
           it 'sets the folder owner' do
@@ -44,6 +42,7 @@ module Minionizer
         end
 
         describe 'group is provided' do
+          let(:groupname) { 'othergroup' }
           let(:options) {{ path: path, group: groupname }}
 
           it 'sets the folder group' do

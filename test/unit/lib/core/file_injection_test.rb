@@ -7,12 +7,7 @@ module Minionizer
       let(:session) { 'MockSession' }
       let(:source_path) { 'data/source_file.txt'}
       let(:target_path) { '/var/target_file.txt'}
-      let(:options) {{ source_path: source_path, target_path: target_path }}
       let(:injection) { FileInjection.new(session, options) }
-
-      it 'instantiates' do
-        assert_kind_of(FileInjection, injection)
-      end
 
       describe '#call' do
         let(:source_contents) { 'Source Contents' }
@@ -21,10 +16,49 @@ module Minionizer
           write_file(source_path, source_contents)
         end
 
-        it 'sends a command to session' do
-          session.expects(:exec).with(%Q{echo '#{source_contents}' > #{target_path}})
-          injection.call
+        describe 'only source and target are provided' do
+          let(:options) {{ source_path: source_path, target_path: target_path }}
+
+          it 'sends a command to session' do
+            session.expects(:exec).with(%Q{echo '#{source_contents}' > #{target_path}})
+            injection.call
+          end
+
         end
+
+        describe 'mode is provided' do
+          let(:mode) { '0700' }
+          let(:options) {{ source_path: source_path, target_path: target_path, mode: mode }}
+
+          it 'sets the file permissions' do
+            session.expects(:exec).with(%Q{echo '#{source_contents}' > #{target_path}})
+            session.expects(:exec).with(%Q{chmod #{mode} #{target_path}})
+            injection.call
+          end
+        end
+
+        describe 'owner is provided' do
+          let(:ownername) { 'otheruser' }
+          let(:options) {{ source_path: source_path, target_path: target_path, owner: ownername }}
+
+          it 'sets the file owner' do
+            session.expects(:exec).with(%Q{echo '#{source_contents}' > #{target_path}})
+            session.expects(:exec).with(%Q{sudo chown #{ownername} #{target_path}})
+            injection.call
+          end
+        end
+
+        describe 'group is provided' do
+          let(:groupname) { 'othergroup' }
+          let(:options) {{ source_path: source_path, target_path: target_path, group: groupname }}
+
+          it 'sets the file group' do
+            session.expects(:exec).with(%Q{echo '#{source_contents}' > #{target_path}})
+            session.expects(:exec).with(%Q{sudo chgrp #{groupname} #{target_path}})
+            injection.call
+          end
+        end
+
       end
 
     end

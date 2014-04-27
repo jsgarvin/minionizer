@@ -22,14 +22,18 @@ module Minionizer
     #######
 
     def exec_single_command(command)
-      connection.exec(command) do |channel, stream, output|
-        if stream == :stdout
-          return output.strip
-        else
-          raise StandardError.new(output)
+      {stdout: ''}.tap do |result|
+        connection.open_channel do |channel|
+          channel.exec(command) do |_, success|
+            raise StandardError.new('Not success') unless success
+            channel.on_data { |_, data| result[:stdout] += data.strip }
+            channel.on_extended_data { |_, data| result[:stderr] += data.strip }
+            channel.on_request('exit-status') { |_,data| result[:exit_code] = data.read_long }
+            channel.on_request('exit-signal') { |_,data| result[:exit_signal] = data.read_long }
+          end
         end
+        connection.loop
       end
-      connection.loop
     end
 
     def connection

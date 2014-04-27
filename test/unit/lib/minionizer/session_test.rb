@@ -11,6 +11,7 @@ module Minionizer
       let(:connector) { mock('connector') }
       let(:channel) { mock('channel') }
       let(:connection) { mock('connection') }
+      let(:channel) { mock('channel') }
       let(:session) { Session.new(fqdn, credentials, connector) }
       let(:start_args) { [fqdn, username, { password: password }]}
 
@@ -28,12 +29,13 @@ module Minionizer
         describe 'when a single command is passed' do
 
           before do
-            connection.expects(:exec).with(command).returns("#{command} pong")
+            connection.expects(:open_channel).yields(channel)
             connection.expects(:loop).returns('fixme')
+            channel.expects(:exec).with(command).returns("#{command} pong")
           end
 
           it 'returns a single result' do
-            assert_kind_of(String, session.exec(command))
+            assert_kind_of(Hash, session.exec(command))
           end
         end
 
@@ -41,8 +43,9 @@ module Minionizer
           let(:commands) { %w(foo bar) }
 
           before do
+            connection.expects(:open_channel).twice.yields(channel)
             commands.each do |command|
-              connection.expects(:exec).with(command).returns("#{command} pong")
+              channel.expects(:exec).with(command).returns("#{command} pong")
             end
             connection.expects(:loop).twice.returns('fixme')
           end

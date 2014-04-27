@@ -5,5 +5,5 @@ require 'net/ssh'
 require 'singleton'
 require 'yaml'
 
-require 'core/task_template'
+require_relative 'core/task_template'
 Dir[File.dirname(__FILE__) + '/**/*.rb'].each { |file| require file }

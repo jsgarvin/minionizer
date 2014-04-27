@@ -5,12 +5,12 @@ class TestRole < Minionizer::RoleTemplate
       <%= injected_code %>
       throw :high_five
     else
-      raise Minionizer::MinionTestFailure.new("Whawhawhaaaa... \#{hostname}")
+      raise Minionizer::MinionTestFailure.new("Whawhawhaaaa... #{hostname}")
     end
   end
 
   def hostname
-    @hostname ||= session.exec(:hostname)
+    @hostname ||= session.exec(:hostname)[:stdout]
   end
 
 end

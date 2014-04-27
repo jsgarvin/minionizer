@@ -5,6 +5,9 @@ require 'socket'
 require 'tempfile'
 require 'timeout'
 
+require 'coveralls'
+Coveralls.wear!
+
 PRE_REQUIRED_LIBS = %w{tempfile}
 
 require_relative '../lib/minionizer'

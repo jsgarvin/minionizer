@@ -1,5 +1,6 @@
 [![Code Climate](https://codeclimate.com/github/jsgarvin/minionizer.png)](https://codeclimate.com/github/jsgarvin/minionizer)
 [![Build Status](https://travis-ci.org/jsgarvin/minionizer.svg?branch=master)](https://travis-ci.org/jsgarvin/minionizer)
+[![Coverage Status](https://coveralls.io/repos/jsgarvin/minionizer/badge.png)](https://coveralls.io/r/jsgarvin/minionizer)
 [![Gem Version](https://badge.fury.io/rb/minionizer.svg)](http://badge.fury.io/rb/minionizer)
 
 # Minionizer

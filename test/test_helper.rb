@@ -2,7 +2,10 @@ require 'rubygems'
 require 'minitest/autorun'
 require 'fakefs/safe'
 require 'socket'
+require 'tempfile'
 require 'timeout'
+
+PRE_REQUIRED_LIBS = %w{tempfile}
 
 require_relative '../lib/minionizer'
 
@@ -25,8 +28,15 @@ module Minionizer
 
     def initialize_fakefs
       FakeFS.activate!
-      FakeFS::FileSystem.clear
       Kernel.class_eval do
+        def fake_require(path)
+          if PRE_REQUIRED_LIBS.include?(path)
+            return false #real require returns false if library is already loaded
+          else
+            File.open(path, "r") {|f| Object.class_eval f.read, path, 1 }
+          end
+        end
+        alias_method :real_require, :require
         alias_method :require, :fake_require
       end
     end
@@ -85,14 +95,6 @@ module Minionizer
       end
     end
   end
-end
-
-module Kernel
-
-  def fake_require(path)
-    File.open(path, "r") {|f| Object.class_eval f.read, path, 1 }
-  end
-
 end
 
 require 'mocha/setup'

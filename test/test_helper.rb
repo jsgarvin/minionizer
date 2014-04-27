@@ -31,11 +31,22 @@ module Minionizer
       end
     end
 
+    def without_fakefs
+      FakeFS.deactivate!
+      yield
+    ensure
+      FakeFS.activate!
+    end
+
     def minion_available?
+      self.class.minion_available?
+    end
+
+    def self.minion_available?
       Timeout.timeout(1) do
-        @@minion_available ||= TCPSocket.new('192.168.49.181', 22)
+        @minion_available ||= TCPSocket.new('192.168.49.181', 22)
       end
-    rescue Errno::ECONNREFUSED, Timeout::Error
+    rescue Errno::ECONNREFUSED, Errno::EHOSTUNREACH, Timeout::Error
       return false
     end
 
@@ -43,10 +54,8 @@ module Minionizer
       @@previously_initialized ||= `cd #{File.dirname(__FILE__)}; vagrant up`
     end
 
-    def roll_back_to_blank_snapshot
-      FakeFS.deactivate!
+    def self.roll_back_to_blank_snapshot
       `cd #{File.dirname(__FILE__)}; vagrant snapshot go blank-test-slate`
-      FakeFS.activate!
     end
 
     def write_role_file(name)

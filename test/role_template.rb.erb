@@ -1,0 +1,16 @@
+class TestRole < Minionizer::RoleTemplate
+
+  def call
+    if hostname == 'precise32'
+      <%= injected_code %>
+      throw :high_five
+    else
+      raise Minionizer::MinionTestFailure.new("Whawhawhaaaa... \#{hostname}")
+    end
+  end
+
+  def hostname
+    @hostname ||= session.exec(:hostname)
+  end
+
+end

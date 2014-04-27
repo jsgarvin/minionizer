@@ -4,56 +4,67 @@ require 'fileutils'
 module Minionizer
   class MinionTestFailure < StandardError; end
   class AcceptanceTest < MiniTest::Unit::TestCase
+    roll_back_to_blank_snapshot if minion_available?
 
     describe 'acceptance testing' do
       let(:fqdn) { '192.168.49.181' }
-      let (:username) { 'vagrant' }
-      let (:password) { 'vagrant' }
+      let(:username) { 'vagrant' }
+      let(:password) { 'vagrant' }
       let(:credentials) {{ 'username' => username, 'password' => password }}
       let(:session) { Session.new(fqdn, credentials) }
       let(:minionization) { Minionization.new([fqdn], Configuration.instance) }
-      let(:minions) {{ fqdn => { 'ssh' => credentials, 'roles' => ['minion_test'] } }}
+      let(:minions) {{ fqdn => { 'ssh' => credentials, 'roles' => ['test_role'] } }}
 
       before do
         skip unless minion_available?
-        roll_back_to_blank_snapshot
         Configuration.instance.instance_variable_set(:@minions, nil)
         write_file('config/minions.yml', minions.to_yaml)
-        write_file('roles/minion_test.rb', TEST_ROLE)
-        write_file(INJECTION_SOURCE, 'FooBar')
+        create_role(code)
       end
 
-      describe 'setting up a server' do
-        it 'exercises from start to finish' do
-          begin
-            without_fakefs do
-              refute(File.exists?(synced_path_to_created_folder))
-              refute(File.exists?(synced_path_to_injected_file))
-            end
-            assert_throws(:high_five) do
-              minionization.call
-            end
-            without_fakefs do
-              assert(
-                File.directory?(synced_path_to_created_folder),
-                "Failed to find created folder: #{synced_path_to_created_folder}"
-              )
-              assert(File.exists?(synced_path_to_injected_file))
-            end
-          ensure
-            without_fakefs do
-              begin
-                FileUtils.rm_rf(synced_path_to_created_folder)
-              rescue
-                warn "Failed to delete: #{synced_path_to_created_folder}"
-              end
-              begin
-                File.delete(synced_path_to_injected_file)
-              rescue
-                warn "Failed to delete: #{synced_path_to_injected_file}"
-              end
-            end
-          end
+      describe FolderCreation do
+        let(:filename) { "foo/dir" }
+        let(:path) { "/home/vagrant/#{filename}" }
+        let(:code) { <<-eos
+          Minionizer::FolderCreation.new( session,
+            path: '#{path}',
+            mode: '0700',
+          ).call
+          eos
+        }
+
+        before do
+          refute_directory_exists(path)
+        end
+
+        it 'creates a folder' do
+          assert_throws(:high_five) { minionization.call }
+          assert_directory_exists(path)
+          mode = session.exec("stat --format=%a #{path}")
+          assert_equal(mode,'700')
+        end
+      end
+
+      describe FileInjection do
+        let(:filename) { 'foobar.txt' }
+        let(:source_path) { "/some/source/#{filename}" }
+        let(:target_path) { "/home/vagrant/#{filename}" }
+        let(:code) { <<-eos
+          Minionizer::FileInjection.new( session,
+            source_path: '#{source_path}',
+            target_path: '#{target_path}',
+          ).call
+          eos
+        }
+
+        before do
+          refute_file_exists(target_path)
+          write_file(source_path, 'FooBar')
+        end
+
+        it 'injects a file' do
+          assert_throws(:high_five) { minionization.call }
+          assert_file_exists(target_path)
         end
       end
 
@@ -61,50 +72,33 @@ module Minionizer
       private
       #######
 
-      def without_fakefs
-        FakeFS.deactivate!
-        yield
-      ensure
-        FakeFS.activate!
+      def create_role(injected_code)
+        role_code = without_fakefs do
+          ERB.new(File.open('test/role_template.rb.erb').read.strip).result(binding)
+        end
+        write_file('roles/test_role.rb', role_code)
       end
 
-      def synced_path_to_created_folder
-        @synced_path_to_created_folder ||= File.expand_path("../../#{CREATE_FOLDER_NAME}", __FILE__)
+      def assert_file_exists(path)
+        assert(link_exists?(path, :f), "#{path} file expected to exist")
       end
 
-      def synced_path_to_injected_file
-        @synced_path_to_injected_file ||= File.expand_path("../../#{INJECTION_SOURCE}", __FILE__)
+      def refute_file_exists(path)
+        refute(link_exists?(path, :f), "#{path} file NOT expected to exist")
       end
+
+      def assert_directory_exists(path)
+        assert(link_exists?(path, :d), "#{path} directory expected to exist")
+      end
+
+      def refute_directory_exists(path)
+        refute(link_exists?(path, :d), "#{path} directory NOT expected to exist")
+      end
+
+      def link_exists?(path, parameter = :e)
+        session.exec("[ -#{parameter} #{path} ] && echo 'yes'") == 'yes'
+      end
+
     end
   end
 end
-
-CREATE_FOLDER_NAME = 'foo/dir'
-CREATE_FOLDER_PATH = "/vagrant/#{CREATE_FOLDER_NAME}"
-INJECTION_SOURCE = 'foobar.txt'
-INJECTION_TARGET = "/vagrant/#{INJECTION_SOURCE}"
-TEST_ROLE = <<-endofstring
-  class MinionTest < Minionizer::RoleTemplate
-
-    def call
-      if hostname == 'precise32'
-        Minionizer::FolderCreation.new(
-          session,
-          path: '#{CREATE_FOLDER_PATH}'
-        ).call
-        Minionizer::FileInjection.new(
-          session,
-          source_path: '#{INJECTION_SOURCE}',
-          target_path: '#{INJECTION_TARGET}'
-        ).call
-        throw :high_five
-      else
-        raise Minionizer::MinionTestFailure.new("Whawhawhaaaa... \#{hostname}")
-      end
-    end
-
-    def hostname
-      @hostname ||= session.exec(:hostname)
-    end
-  end
-endofstring

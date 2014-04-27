@@ -3,10 +3,10 @@ require 'fileutils'
 
 module Minionizer
   class MinionTestFailure < StandardError; end
-  class AcceptanceTest < MiniTest::Unit::TestCase
+  class CoreLibraryTest < MiniTest::Unit::TestCase
     roll_back_to_blank_snapshot if minion_available?
 
-    describe 'acceptance testing' do
+    describe 'core library' do
       let(:fqdn) { '192.168.49.181' }
       let(:username) { 'vagrant' }
       let(:password) { 'vagrant' }
@@ -24,11 +24,14 @@ module Minionizer
 
       describe FolderCreation do
         let(:filename) { "foo/dir" }
+        let(:ownername) { 'otheruser' }
         let(:path) { "/home/vagrant/#{filename}" }
         let(:code) { <<-eos
           Minionizer::FolderCreation.new( session,
             path: '#{path}',
             mode: '0700',
+            owner: '#{ownername}',
+            group: '#{ownername}'
           ).call
           eos
         }
@@ -38,10 +41,15 @@ module Minionizer
         end
 
         it 'creates a folder' do
+          session.exec("sudo adduser --disabled-password --gecos '#{ownername}'  #{ownername}")
           assert_throws(:high_five) { minionization.call }
           assert_directory_exists(path)
-          mode = session.exec("stat --format=%a #{path}")
-          assert_equal(mode,'700')
+          mode = session.exec("stat --format=%a #{path}")[:stdout]
+          assert_equal('700',mode)
+          owner = session.exec("stat --format=%U #{path}")[:stdout]
+          assert_equal(ownername, owner)
+          group = session.exec("stat --format=%G #{path}")[:stdout]
+          assert_equal(ownername, group)
         end
       end
 
@@ -96,7 +104,7 @@ module Minionizer
       end
 
       def link_exists?(path, parameter = :e)
-        session.exec("[ -#{parameter} #{path} ] && echo 'yes'") == 'yes'
+        session.exec("[ -#{parameter} #{path} ] && echo 'yes'")[:stdout] == 'yes'
       end
 
     end

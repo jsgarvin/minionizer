@@ -6,15 +6,51 @@ module Minionizer
       let(:session) { 'MockSession' }
       let(:path) { '/foo/bar' }
       let(:mode) { '0700' }
-      let(:options) {{ path: path, mode: mode }}
+      let(:ownername) { 'otherowner' }
+      let(:groupname) { 'othergroup' }
+      let(:options) {{ path: path, mode: mode, owner: ownername, group: groupname }}
       let(:folder_creation) { FolderCreation.new(session, options) }
 
       describe '#call' do
 
-        it 'sends the command to session' do
-          session.expects(:exec).with(%Q{mkdir --parents #{path}})
-          session.expects(:exec).with(%Q{chmod #{mode} #{path}})
-          folder_creation.call
+        describe 'only path is provided' do
+          let(:options) {{ path: path }}
+
+          it 'sends the mkdir command' do
+            session.expects(:exec).with(%Q{mkdir --parents #{path}})
+            folder_creation.call
+          end
+
+        end
+
+        describe 'mode is provided' do
+          let(:options) {{ path: path, mode: mode }}
+
+          it 'sets the folder permissions' do
+            session.expects(:exec).with(%Q{mkdir --parents #{path}})
+            session.expects(:exec).with(%Q{chmod #{mode} #{path}})
+            folder_creation.call
+          end
+        end
+
+        describe 'owner is provided' do
+          let(:options) {{ path: path, owner: ownername }}
+
+          it 'sets the folder owner' do
+            session.expects(:exec).with(%Q{mkdir --parents #{path}})
+            session.expects(:exec).with(%Q{sudo chown #{ownername} #{path}})
+            folder_creation.call
+          end
+        end
+
+        describe 'group is provided' do
+          let(:options) {{ path: path, group: groupname }}
+
+          it 'sets the folder group' do
+            session.expects(:exec).with(%Q{mkdir --parents #{path}})
+            session.expects(:exec).with(%Q{sudo chgrp #{groupname} #{path}})
+            folder_creation.call
+          end
         end
 
       end

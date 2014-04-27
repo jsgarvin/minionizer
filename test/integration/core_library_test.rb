@@ -26,15 +26,8 @@ module Minionizer
         let(:filename) { "foo/dir" }
         let(:ownername) { 'otheruser' }
         let(:path) { "/home/vagrant/#{filename}" }
-        let(:code) { <<-eos
-          Minionizer::FolderCreation.new( session,
-            path: '#{path}',
-            mode: '0700',
-            owner: '#{ownername}',
-            group: '#{ownername}'
-          ).call
-          eos
-        }
+        let(:options) {{ path: path, mode: '0700', owner: ownername, group: ownername }}
+        let(:code) { %Q{Minionizer::FolderCreation.new( session, #{options}).call} }
 
         before do
           refute_directory_exists(path)
@@ -57,13 +50,8 @@ module Minionizer
         let(:filename) { 'foobar.txt' }
         let(:source_path) { "/some/source/#{filename}" }
         let(:target_path) { "/home/vagrant/#{filename}" }
-        let(:code) { <<-eos
-          Minionizer::FileInjection.new( session,
-            source_path: '#{source_path}',
-            target_path: '#{target_path}',
-          ).call
-          eos
-        }
+        let(:options) {{ source_path: source_path, target_path: target_path }}
+        let(:code) { %Q{Minionizer::FileInjection.new( session, #{options}).call} }
 
         before do
           refute_file_exists(target_path)

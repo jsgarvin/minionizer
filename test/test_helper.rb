@@ -97,6 +97,10 @@ module Minionizer
         object.responds_like_instance_of(klass)
       end
     end
+
+    def assert_equal(first, second)
+      assert(first === second, "'#{second}' expected to be equal to '#{first}'")
+    end
   end
 end
 

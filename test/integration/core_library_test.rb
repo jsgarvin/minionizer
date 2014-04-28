@@ -22,6 +22,22 @@ module Minionizer
         create_role(code)
       end
 
+      describe UserCreation do
+        let(:new_name) { 'Test User' }
+        let(:new_username) { 'testuser' }
+        let(:options) {{ name: new_name, username: new_username }}
+        let(:code) { %Q{Minionizer::UserCreation.new( session, #{options}).call} }
+
+        before do
+          refute_user_exists(new_username)
+        end
+
+        it 'creates a user' do
+          assert_throws(:high_five) { minionization.call }
+          assert_user_exists(new_username)
+        end
+      end
+
       describe FolderCreation do
         let(:filename) { "foo/dir" }
         let(:ownername) { 'otheruser' }
@@ -115,6 +131,18 @@ module Minionizer
 
       def link_exists?(path, parameter = :e)
         session.exec("[ -#{parameter} #{path} ] && echo 'yes' || echo 'no'")[:stdout] == 'yes'
+      end
+
+      def assert_user_exists(username)
+        assert(user_exists?(username), "User '#{username}' expected to exist")
+      end
+
+      def refute_user_exists(username)
+        refute(user_exists?(username), "User '#{username}' expected to NOT exist")
+      end
+
+      def user_exists?(username)
+        session.exec("id #{username} || echo 'no'")[:stdout] != 'no'
       end
 
     end

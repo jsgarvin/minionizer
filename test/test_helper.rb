@@ -57,7 +57,7 @@ module Minionizer
 
     def self.minion_available?
       Timeout.timeout(1) do
-        @minion_available ||= TCPSocket.new('192.168.49.181', 22)
+        @minion_available ||= Net::SSH.start('192.168.49.181', 'vagrant', password: 'vagrant')
       end
     rescue Errno::ECONNREFUSED, Errno::EHOSTUNREACH, Timeout::Error
       return false

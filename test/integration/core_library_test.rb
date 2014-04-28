@@ -51,6 +51,7 @@ module Minionizer
         end
 
         after do
+          skip unless minion_available?
           session.exec("sudo userdel #{ownername}")
         end
 
@@ -87,6 +88,7 @@ module Minionizer
         end
 
         after do
+          skip unless minion_available?
           session.exec("sudo userdel #{ownername}")
         end
 

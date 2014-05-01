@@ -1,12 +1,17 @@
 require 'rubygems'
+require 'simplecov'
+require 'coveralls'
 require 'minitest/autorun'
 require 'fakefs/safe'
 require 'socket'
 require 'tempfile'
 require 'timeout'
 
-require 'coveralls'
-Coveralls.wear!
+if Coveralls.will_run?
+  Coveralls.wear!
+else
+  SimpleCov.start
+end
 
 PRE_REQUIRED_LIBS = %w{tempfile}
 
@@ -23,6 +28,9 @@ module Minionizer
     def after_teardown
       super
       FakeFS.deactivate!
+      Kernel.class_eval do
+        alias_method :require, :real_require
+      end
     end
 
     #######

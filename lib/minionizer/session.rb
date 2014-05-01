@@ -33,10 +33,9 @@ module Minionizer
     #######
 
     def exec_single_command(command)
-      command = "sudo #{command}" if use_sudo?
       {stdout: '', stderr: ''}.tap do |result|
         connection.open_channel do |channel|
-          channel.exec(command) do |_, success|
+          channel.exec(sudoize(command)) do |_, success|
             raise StandardError.new('Not success') unless success
             channel.on_data { |_, data| result[:stdout] += data.strip }
             channel.on_extended_data { |_, data| result[:stderr] += data.to_s }
@@ -46,13 +45,17 @@ module Minionizer
         end
         connection.loop
         unless result[:exit_code].to_i == 0
-          raise StandardError.new("Command \"#{command}\" returned exit code #{result[:exit_code]}/#{result[:exit_signal]}/#{result[:stderr]}")
+          raise StandardError.new("Command \"#{sudoize(command)}\" returned exit code #{result[:exit_code]}/#{result[:exit_signal]}/#{result[:stderr]}")
         end
       end
     end
 
     def connection
       @connection ||= connector.start(fqdn, username, password: password)
+    end
+
+    def sudoize(command)
+      use_sudo? ? %Q{sudo bash -c "#{command}"} : command
     end
 
     def use_sudo?

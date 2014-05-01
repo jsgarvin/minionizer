@@ -116,6 +116,30 @@ module Minionizer
         end
       end
 
+      describe PublicSshKeyInjection do
+        let(:source_path) { "data/public_keys" }
+        let(:target_username) { 'otheruser' }
+        let(:options) {{ target_username: target_username }}
+        let(:code) { %Q{
+          session.sudo do |sudo_session|
+            Minionizer::PublicSshKeyInjection.new(sudo_session, #{options}).call
+          end
+        } }
+
+        before do
+          Dir.mkdir('/tmp')
+          refute_file_exists("~#{target_username}/.ssh/authorized_keys")
+          write_file("#{source_path}/foobar.pubkey", 'FooBar')
+          write_file("#{source_path}/foobaz.pubkey", 'FooBaz')
+          session.exec("sudo adduser --disabled-password --gecos '#{target_username}'  #{target_username}")
+        end
+
+        it 'injects public keys' do
+          assert_throws(:high_five) { minionization.call }
+          assert_file_exists("~#{target_username}/.ssh/authorized_keys")
+        end
+      end
+
       #######
       private
       #######

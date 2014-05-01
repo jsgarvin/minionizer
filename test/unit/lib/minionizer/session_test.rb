@@ -44,7 +44,7 @@ module Minionizer
           describe 'with block argument' do
 
             it 'prepends sudo onto the command line' do
-              channel.expects(:exec).with("sudo #{command}").yields(channel, true)
+              channel.expects(:exec).with(sudoized(command)).yields(channel, true)
               session.sudo do
                 session.exec(command)
               end
@@ -53,7 +53,7 @@ module Minionizer
 
           describe 'with single command passed directly' do
             it 'prepends sudo onto the command line' do
-              channel.expects(:exec).with("sudo #{command}").yields(channel, true)
+              channel.expects(:exec).with(sudoized(command)).yields(channel, true)
               session.sudo(command)
             end
           end
@@ -73,7 +73,7 @@ module Minionizer
 
             it 'prepends sudo onto each command line' do
               commands.each do |command|
-                channel.expects(:exec).with("sudo #{command}").yields(channel, true)
+                channel.expects(:exec).with(sudoized(command)).yields(channel, true)
               end
               session.sudo(*commands)
             end

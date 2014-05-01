@@ -109,7 +109,72 @@ module Minionizer
     def assert_equal(first, second)
       assert(first === second, "'#{second}' expected to be equal to '#{first}'")
     end
+
+    def sudoized(command)
+      %Q{sudo bash -c "#{command}"}
+    end
   end
 end
 
 require 'mocha/setup'
+
+## Only need this until we have FakeFS > 0.5.2 that includes this commit.
+## https://github.com/defunkt/fakefs/commit/06eb002da7fb8119a60fef7d50307bd3358c85f3
+module FakeFS
+  class Dir
+    if RUBY_VERSION >= '2.1'
+      module Tmpname # :nodoc:
+        module_function
+
+        def tmpdir
+          Dir.tmpdir
+        end
+
+        def make_tmpname(prefix_suffix, n)
+          case prefix_suffix
+          when String
+            prefix = prefix_suffix
+            suffix = ""
+          when Array
+            prefix = prefix_suffix[0]
+            suffix = prefix_suffix[1]
+          else
+            raise ArgumentError, "unexpected prefix_suffix: #{prefix_suffix.inspect}"
+          end
+          t = Time.now.strftime("%Y%m%d")
+          path = "#{prefix}#{t}-#{$$}-#{rand(0x100000000).to_s(36)}"
+          path << "-#{n}" if n
+          path << suffix
+        end
+
+        def create(basename, *rest)
+          if opts = Hash.try_convert(rest[-1])
+            opts = opts.dup if rest.pop.equal?(opts)
+            max_try = opts.delete(:max_try)
+            opts = [opts]
+          else
+            opts = []
+          end
+          tmpdir, = *rest
+          if $SAFE > 0 and tmpdir.tainted?
+            tmpdir = '/tmp'
+          else
+            tmpdir ||= tmpdir()
+          end
+          n = nil
+          begin
+            path = File.join(tmpdir, make_tmpname(basename, n))
+            yield(path, n, *opts)
+          rescue Errno::EEXIST
+            n ||= 0
+            n += 1
+            retry if !max_try or n < max_try
+            raise "cannot generate temporary name using `#{basename}' under `#{tmpdir}'"
+          end
+          path
+        end
+      end
+    end
+  end
+end
+

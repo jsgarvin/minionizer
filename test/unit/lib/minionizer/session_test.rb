@@ -27,15 +27,44 @@ module Minionizer
         end
 
         describe 'when a single command is passed' do
+          let(:stdout_data) { 'stdout' }
+          let(:stderr_data) { 'stderr' }
+          let(:exit_signal) { 'exit_signal' }
 
           before do
             connection.expects(:open_channel).yields(channel)
             connection.expects(:loop).returns('fixme')
-            channel.expects(:exec).with(command).returns("#{command} pong")
+            channel.expects(:exec).with(command).yields(channel, true)
+            channel.expects(:on_data).yields(nil, stdout_data)
+            channel.expects(:on_extended_data).yields(nil, stderr_data)
+            channel.expects(:on_request).with('exit-status').yields(nil, OpenStruct.new(:read_long => exit_code))
+            channel.expects(:on_request).with('exit-signal').yields(nil, OpenStruct.new(:read_long => exit_signal))
           end
 
-          it 'returns a single result' do
-            assert_kind_of(Hash, session.exec(command))
+          describe 'when exit code is 0' do
+            let(:exit_code) { 0 }
+
+            before do
+              @result = session.exec(command)
+            end
+
+            it 'returns a single result' do
+              assert_equal(stdout_data, @result[:stdout])
+              assert_equal(stderr_data, @result[:stderr])
+              assert_equal(exit_code, @result[:exit_code])
+              assert_equal(exit_signal, @result[:exit_signal])
+            end
+          end
+
+          describe 'when exit code is not 0' do
+            let(:exit_code) { 1 }
+
+            it 'raises StandardError' do
+              assert_raises(StandardError) do
+                @result = session.exec(command)
+              end
+            end
+
           end
         end
 

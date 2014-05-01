@@ -19,10 +19,6 @@ module Minionizer
       options.key?(method_name) || super
     end
 
-    #######
-    private
-    #######
-
   end
 end
 

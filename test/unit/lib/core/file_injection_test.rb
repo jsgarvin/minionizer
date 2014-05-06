@@ -43,7 +43,7 @@ module Minionizer
 
           it 'sets the file owner' do
             session.expects(:exec).with(%Q{echo '#{source_contents}' > #{target_path}})
-            session.expects(:exec).with(%Q{sudo chown #{ownername} #{target_path}})
+            session.expects(:exec).with(%Q{chown #{ownername} #{target_path}})
             injection.call
           end
         end
@@ -54,7 +54,7 @@ module Minionizer
 
           it 'sets the file group' do
             session.expects(:exec).with(%Q{echo '#{source_contents}' > #{target_path}})
-            session.expects(:exec).with(%Q{sudo chgrp #{groupname} #{target_path}})
+            session.expects(:exec).with(%Q{chgrp #{groupname} #{target_path}})
             injection.call
           end
         end

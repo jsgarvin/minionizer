@@ -4,8 +4,8 @@ module Minionizer
     def call
       session.exec("echo '#{contents_from(source_path)}' > #{target_path}")
       session.exec("chmod #{mode} #{target_path}") if respond_to?(:mode)
-      session.exec("sudo chown #{owner} #{target_path}") if respond_to?(:owner)
-      session.exec("sudo chgrp #{group} #{target_path}") if respond_to?(:group)
+      session.exec("chown #{owner} #{target_path}") if respond_to?(:owner)
+      session.exec("chgrp #{group} #{target_path}") if respond_to?(:group)
     end
 
     #######

@@ -14,7 +14,7 @@ module Minionizer
         let(:username) { 'testuser' }
 
         it 'creates the user' do
-          session.expects(:exec).with(%Q{sudo adduser --disabled-password --gecos '#{name}' #{username}})
+          session.expects(:exec).with(%Q{adduser --disabled-password --gecos '#{name}' #{username}})
           user_creation.call
         end
 

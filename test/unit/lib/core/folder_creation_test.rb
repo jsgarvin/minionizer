@@ -36,7 +36,7 @@ module Minionizer
 
           it 'sets the folder owner' do
             session.expects(:exec).with(%Q{mkdir --parents #{path}})
-            session.expects(:exec).with(%Q{sudo chown #{ownername} #{path}})
+            session.expects(:exec).with(%Q{chown #{ownername} #{path}})
             folder_creation.call
           end
         end
@@ -47,7 +47,7 @@ module Minionizer
 
           it 'sets the folder group' do
             session.expects(:exec).with(%Q{mkdir --parents #{path}})
-            session.expects(:exec).with(%Q{sudo chgrp #{groupname} #{path}})
+            session.expects(:exec).with(%Q{chgrp #{groupname} #{path}})
             folder_creation.call
           end
         end

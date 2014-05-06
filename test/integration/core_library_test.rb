@@ -26,7 +26,11 @@ module Minionizer
         let(:new_name) { 'Test User' }
         let(:new_username) { 'testuser' }
         let(:options) {{ name: new_name, username: new_username }}
-        let(:code) { %Q{Minionizer::UserCreation.new( session, #{options}).call} }
+        let(:code) { %Q{
+          session.sudo do
+            Minionizer::UserCreation.new( session, #{options}).call
+          end
+        } }
 
         before do
           refute_user_exists(new_username)
@@ -43,16 +47,20 @@ module Minionizer
         let(:ownername) { 'otheruser' }
         let(:path) { "/home/vagrant/#{filename}" }
         let(:options) {{ path: path, mode: '0700', owner: ownername, group: ownername }}
-        let(:code) { %Q{Minionizer::FolderCreation.new( session, #{options}).call} }
+        let(:code) { %Q{
+          session.sudo do
+            Minionizer::FolderCreation.new( session, #{options}).call
+          end
+        } }
 
         before do
           refute_directory_exists(path)
-          session.exec("sudo adduser --disabled-password --gecos '#{ownername}'  #{ownername}")
+          session.sudo("adduser --disabled-password --gecos '#{ownername}'  #{ownername}")
         end
 
         after do
           skip unless minion_available?
-          session.exec("sudo userdel #{ownername}")
+          session.sudo("userdel #{ownername}")
         end
 
         it 'creates a folder' do
@@ -79,17 +87,21 @@ module Minionizer
           owner: ownername,
           group: ownername
         }}
-        let(:code) { %Q{Minionizer::FileInjection.new( session, #{options}).call} }
+        let(:code) { %Q{
+          session.sudo do
+            Minionizer::FileInjection.new( session, #{options}).call
+          end
+        } }
 
         before do
           refute_file_exists(target_path)
           write_file(source_path, 'FooBar')
-          session.exec("sudo adduser --disabled-password --gecos '#{ownername}'  #{ownername}")
+          session.sudo("adduser --disabled-password --gecos '#{ownername}'  #{ownername}")
         end
 
         after do
           skip unless minion_available?
-          session.exec("sudo userdel #{ownername}")
+          session.sudo("userdel #{ownername}")
         end
 
         it 'injects a file' do

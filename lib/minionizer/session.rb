@@ -9,6 +9,17 @@ module Minionizer
       @connector = connector
     end
 
+    def sudo(*commands)
+      @use_sudo = true
+      if commands.any?
+        commands.each { |command| exec_single_command(command) }
+      else
+        yield self
+      end
+    ensure
+      @use_sudo = false
+    end
+
     def exec(arg)
       if arg.is_a?(Array)
         arg.map { |command| exec_single_command(command) }
@@ -22,6 +33,7 @@ module Minionizer
     #######
 
     def exec_single_command(command)
+      command = "sudo #{command}" if use_sudo?
       {stdout: '', stderr: ''}.tap do |result|
         connection.open_channel do |channel|
           channel.exec(command) do |_, success|
@@ -41,6 +53,10 @@ module Minionizer
 
     def connection
       @connection ||= connector.start(fqdn, username, password: password)
+    end
+
+    def use_sudo?
+      @use_sudo
     end
   end
 end

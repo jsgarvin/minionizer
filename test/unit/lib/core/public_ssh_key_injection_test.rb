@@ -29,7 +29,9 @@ module Minionizer
 
         before do
           temp_file_pointer.expects(:unlink)
-          Tempfile.expects(:new).returns(temp_file_pointer)
+          Tempfile.expects(:new).yields(temp_file_pointer).returns(temp_file_pointer)
+          write_file('data/public_keys/foobar.pubkey', 'foobar')
+          temp_file_pointer.expects(:puts).with('foobar')
         end
 
         it 'injects the file' do

@@ -116,7 +116,7 @@ module Minionizer
             let(:exit_code) { 1 }
 
             it 'raises StandardError' do
-              assert_raises(StandardError) do
+              assert_raises(CommandError) do
                 @result = session.exec(command)
               end
             end

@@ -37,7 +37,7 @@ module Minionizer
         end
 
         it 'creates a user' do
-          assert_throws(:high_five) { minionization.call }
+          2.times { assert_throws(:high_five) { minionization.call } }
           assert_user_exists(new_username)
         end
       end
@@ -64,7 +64,7 @@ module Minionizer
         end
 
         it 'creates a folder' do
-          assert_throws(:high_five) { minionization.call }
+          2.times { assert_throws(:high_five) { minionization.call } }
           assert_directory_exists(path)
           mode = session.exec("stat --format=%a #{path}")[:stdout]
           assert_equal('700',mode)
@@ -105,7 +105,7 @@ module Minionizer
         end
 
         it 'injects a file' do
-          assert_throws(:high_five) { minionization.call }
+          2.times { assert_throws(:high_five) { minionization.call } }
           assert_file_exists(target_path)
           mode = session.exec("stat --format=%a #{target_path}")[:stdout]
           assert_equal('700',mode)
@@ -135,7 +135,7 @@ module Minionizer
         end
 
         it 'injects public keys' do
-          assert_throws(:high_five) { minionization.call }
+          2.times { assert_throws(:high_five) { minionization.call } }
           assert_file_exists("~#{target_username}/.ssh/authorized_keys")
         end
       end

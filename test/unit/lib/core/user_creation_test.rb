@@ -13,11 +13,31 @@ module Minionizer
         let(:name) { 'Test User' }
         let(:username) { 'testuser' }
 
-        it 'creates the user' do
-          session.expects(:exec).with(%Q{adduser --disabled-password --gecos '#{name}' #{username}})
-          user_creation.call
+        describe 'user does not already exist' do
+
+          before do
+            session.stubs(:exec).with(%Q{id #{username}}).raises(CommandError.new)
+          end
+
+          it 'creates the user' do
+            session.expects(:exec).with(%Q{adduser --disabled-password --gecos '#{name}' #{username}})
+            user_creation.call
+          end
+
         end
 
+        describe 'user already exists' do
+
+          before do
+            session.stubs(:exec).with(%Q{id #{username}}).returns(true)
+          end
+
+          it 'does not create the user' do
+            session.expects(:exec).with(%Q{adduser --disabled-password --gecos '#{name}' #{username}}).never
+            user_creation.call
+          end
+
+        end
       end
 
     end

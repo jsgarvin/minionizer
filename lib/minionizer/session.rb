@@ -45,7 +45,7 @@ module Minionizer
         end
         connection.loop
         unless result[:exit_code].to_i == 0
-          raise StandardError.new("Command \"#{sudoize(command)}\" returned exit code #{result[:exit_code]}/#{result[:exit_signal]}/#{result[:stderr]}")
+          raise CommandError.new("Command \"#{sudoize(command)}\" returned exit code #{result[:exit_code]}/#{result[:exit_signal]}/#{result[:stderr]}")
         end
       end
     end

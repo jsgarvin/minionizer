@@ -13,8 +13,7 @@ module Minionizer
     def sudo(*commands)
       @with_sudo = true
       if commands.any?
-        results = commands.map { |command| execution(command).call  }
-        return (results.length == 1 ? results.first : results)
+        return exec(*commands)
       else
         yield self
       end

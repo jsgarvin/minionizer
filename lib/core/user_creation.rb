@@ -11,7 +11,7 @@ module Minionizer
 
     def user_exists?
       session.exec("id #{username}")
-    rescue CommandError
+    rescue CommandExecution::CommandError
       return false
     end
   end

@@ -16,7 +16,7 @@ module Minionizer
         describe 'user does not already exist' do
 
           before do
-            session.stubs(:exec).with(%Q{id #{username}}).raises(CommandError.new)
+            session.stubs(:exec).with(%Q{id #{username}}).raises(CommandExecution::CommandError.new)
           end
 
           it 'creates the user' do

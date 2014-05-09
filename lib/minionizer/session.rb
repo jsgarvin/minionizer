@@ -1,52 +1,41 @@
 module Minionizer
   class Session
-    attr_reader :fqdn, :username, :password, :connector
+    attr_reader :fqdn, :username, :password, :connector, :command_executor
 
-    def initialize(fqdn, credentials, connector = Net::SSH)
+    def initialize(fqdn, credentials, connector = Net::SSH, command_executor = CommandExecution)
       @fqdn = fqdn
       @username = credentials['username']
       @password = credentials['password']
       @connector = connector
+      @command_executor = command_executor
     end
 
     def sudo(*commands)
-      @use_sudo = true
+      @with_sudo = true
       if commands.any?
-        commands.each { |command| exec_single_command(command) }
+        results = commands.map { |command| execution(command).call  }
+        return (results.length == 1 ? results.first : results)
       else
         yield self
       end
     ensure
-      @use_sudo = false
+      @with_sudo = false
     end
 
-    def exec(arg)
-      if arg.is_a?(Array)
-        arg.map { |command| exec_single_command(command) }
-      else
-        exec_single_command(arg)
-      end
+    def exec(*commands)
+      results = commands.map { |command| execution(command).call }
+      results.length == 1 ? results.first : results
     end
 
     #######
     private
     #######
 
-    def exec_single_command(command)
-      {stdout: '', stderr: ''}.tap do |result|
-        connection.open_channel do |channel|
-          channel.exec(sudoize(command)) do |_, success|
-            raise StandardError.new('Not success') unless success
-            channel.on_data { |_, data| result[:stdout] += data.strip }
-            channel.on_extended_data { |_, data| result[:stderr] += data.to_s }
-            channel.on_request('exit-status') { |_,data| result[:exit_code] = data.read_long }
-            channel.on_request('exit-signal') { |_,data| result[:exit_signal] = data.read_long }
-          end
-        end
-        connection.loop
-        unless result[:exit_code].to_i == 0
-          raise CommandError.new("Command \"#{sudoize(command)}\" returned exit code #{result[:exit_code]}/#{result[:exit_signal]}/#{result[:stderr]}")
-        end
+    def execution(command)
+      if with_sudo?
+        command_executor.new(connection, prefix_sudo(command))
+      else
+        command_executor.new(connection, command)
       end
     end
 
@@ -54,12 +43,13 @@ module Minionizer
       @connection ||= connector.start(fqdn, username, password: password)
     end
 
-    def sudoize(command)
-      use_sudo? ? %Q{sudo bash -c "#{command}"} : command
+    def prefix_sudo(command)
+      %Q{sudo bash -c "#{command}"}
     end
 
-    def use_sudo?
-      @use_sudo
+    def with_sudo?
+      @with_sudo
     end
+
   end
 end

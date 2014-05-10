@@ -1,7 +1,7 @@
 require 'test_helper'
 
 module Minionizer
-  class CommandExecutionTest < MiniTest::Unit::TestCase
+  class CommandExecutionTest < MiniTest::Test
 
     describe CommandExecution do
       let(:command) { 'foo --bar' }

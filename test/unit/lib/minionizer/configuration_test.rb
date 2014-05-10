@@ -1,14 +1,16 @@
 require 'test_helper'
 
 module Minionizer
-  class ConfigurationTest < MiniTest::Unit::TestCase
+  class ConfigurationTest < MiniTest::Test
 
     describe Configuration do
       let(:config) { Configuration.instance }
+
       let(:minions) {{ 'foo.bar.com' => { :ssh => { :username => 'foo', :password => 'bar' } } }}
 
       before do
-        write_file('config/minions.yml', minions.to_yaml)
+        config.instance_variable_set('@minions', nil)
+        write_file('./config/minions.yml', minions.to_yaml)
       end
 
       it 'instantiates a configuration' do

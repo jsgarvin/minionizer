@@ -3,7 +3,7 @@ require 'fileutils'
 
 module Minionizer
   class MinionTestFailure < StandardError; end
-  class CoreLibraryTest < MiniTest::Unit::TestCase
+  class CoreLibraryTest < MiniTest::Test
     roll_back_to_blank_snapshot if minion_available?
 
     describe 'core library' do
@@ -132,6 +132,11 @@ module Minionizer
           write_file("#{source_path}/foobar.pubkey", 'FooBar')
           write_file("#{source_path}/foobaz.pubkey", 'FooBaz')
           session.exec("sudo adduser --disabled-password --gecos '#{target_username}'  #{target_username}")
+        end
+
+        after do
+          File.delete("#{source_path}/foobar.pubkey")
+          File.delete("#{source_path}/foobaz.pubkey")
         end
 
         it 'injects public keys' do

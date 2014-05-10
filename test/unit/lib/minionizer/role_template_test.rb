@@ -1,7 +1,7 @@
 require 'test_helper'
 
 module Minionizer
-  class RoleTemplateTest < MiniTest::Unit::TestCase
+  class RoleTemplateTest < MiniTest::Test
 
     describe RoleTemplate do
       let(:session) { quacks_like_instance_of(Session) }

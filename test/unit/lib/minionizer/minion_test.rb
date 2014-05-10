@@ -1,7 +1,7 @@
 require 'test_helper'
 
 module Minionizer
-  class MinionTest < MiniTest::Unit::TestCase
+  class MinionTest < MiniTest::Test
     describe Minion do
       let(:username) { 'foo' }
       let(:password) { 'bar' }

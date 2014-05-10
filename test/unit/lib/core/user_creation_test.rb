@@ -1,17 +1,15 @@
 require 'test_helper'
 
 module Minionizer
-  class UserCreationTest < MiniTest::Unit::TestCase
+  class UserCreationTest < MiniTest::Test
     describe UserCreation do
       let(:session) { 'MockSession' }
-      let(:name) { 'Test User' }
+      let(:full_name) { 'Test User' }
       let(:username) { 'testuser' }
-      let(:options) {{ name: name, username: username }}
+      let(:options) {{ name: full_name, username: username }}
       let(:user_creation) { UserCreation.new(session, options) }
 
       describe '#call' do
-        let(:name) { 'Test User' }
-        let(:username) { 'testuser' }
 
         describe 'user does not already exist' do
 
@@ -20,7 +18,7 @@ module Minionizer
           end
 
           it 'creates the user' do
-            session.expects(:exec).with(%Q{adduser --disabled-password --gecos '#{name}' #{username}})
+            session.expects(:exec).with(%Q{adduser --disabled-password --gecos '#{full_name}' #{username}})
             user_creation.call
           end
 
@@ -33,7 +31,7 @@ module Minionizer
           end
 
           it 'does not create the user' do
-            session.expects(:exec).with(%Q{adduser --disabled-password --gecos '#{name}' #{username}}).never
+            session.expects(:exec).with(%Q{adduser --disabled-password --gecos '#{full_name}' #{username}}).never
             user_creation.call
           end
 

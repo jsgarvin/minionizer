@@ -1,7 +1,7 @@
 require 'test_helper'
 
 module Minionizer
-  class PublicSshKeyInjectionTest < MiniTest::Unit::TestCase
+  class PublicSshKeyInjectionTest < MiniTest::Test
 
     describe PublicSshKeyInjection do
 

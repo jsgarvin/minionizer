@@ -10,12 +10,12 @@ Gem::Specification.new do |s|
   s.summary = %q{Simple server provisioning and management.}
   s.description = %q{Minionizer aims to be a light weight server provisioning tool without bloat or steep learning curves.}
 
-  s.add_dependency('activesupport', '~> 4.0')
-  s.add_dependency('net-ssh', '~> 2.8')
+  s.add_dependency('activesupport', '~> 4.1')
+  s.add_dependency('net-ssh', '~> 2.9')
 
   s.add_development_dependency('fakefs', '~> 0.5')
   s.add_development_dependency('mocha', '~> 1.0')
-  s.add_development_dependency('rake', '~> 10.0')
+  s.add_development_dependency('rake', '~> 10.3')
 
   s.files = `git ls-files`.split("\n")
   s.test_files = `git ls-files -- test/*`.split("\n")

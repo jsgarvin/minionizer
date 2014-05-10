@@ -1,7 +1,7 @@
 require 'test_helper'
 
 module Minionizer
-  class FolderCreationTest < MiniTest::Unit::TestCase
+  class FolderCreationTest < MiniTest::Test
     describe FolderCreation do
       let(:session) { 'MockSession' }
       let(:path) { '/foo/bar' }

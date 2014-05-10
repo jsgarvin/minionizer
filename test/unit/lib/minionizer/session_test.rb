@@ -1,7 +1,7 @@
 require 'test_helper'
 
 module Minionizer
-  class SessionTest < MiniTest::Unit::TestCase
+  class SessionTest < MiniTest::Test
 
     describe Session do
       let(:fqdn) { 'foo.bar.com' }

@@ -1,7 +1,7 @@
 require 'test_helper'
 
 module Minionizer
-  class FileInjectionTest < MiniTest::Unit::TestCase
+  class FileInjectionTest < MiniTest::Test
 
     describe FileInjection do
       let(:session) { 'MockSession' }

@@ -18,7 +18,7 @@ PRE_REQUIRED_LIBS = %w{tempfile}
 require_relative '../lib/minionizer'
 
 module Minionizer
-  class MiniTest::Unit::TestCase
+  class MiniTest::Test
 
     def before_setup
       super
@@ -64,8 +64,17 @@ module Minionizer
     end
 
     def self.minion_available?
-      Timeout.timeout(1) do
-        @minion_available ||= Net::SSH.start('192.168.49.181', 'vagrant', password: 'vagrant')
+      if MinionMonitor.minion_available?
+        return true
+      else
+        Timeout.timeout(1) do
+          if Net::SSH.start('192.168.49.181', 'vagrant', password: 'vagrant')
+            MinionMonitor.minion_available!
+            return true
+          else
+            return false
+          end
+        end
       end
     rescue Errno::ECONNREFUSED, Errno::EHOSTUNREACH, Timeout::Error
       return false
@@ -117,6 +126,11 @@ module Minionizer
 end
 
 require 'mocha/setup'
+
+module MinionMonitor
+  def self.minion_available?; !!@minion_available; end
+  def self.minion_available!; @minion_available = true; end
+end
 
 ## Only need this until we have FakeFS > 0.5.2 that includes this commit.
 ## https://github.com/defunkt/fakefs/commit/06eb002da7fb8119a60fef7d50307bd3358c85f3

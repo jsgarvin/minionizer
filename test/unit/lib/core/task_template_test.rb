@@ -1,7 +1,7 @@
 require 'test_helper'
 
 module Minionizer
-  class TaskTemplateTest < MiniTest::Unit::TestCase
+  class TaskTemplateTest < MiniTest::Test
     describe TaskTemplate do
       let(:session) { 'MockSession' }
       let(:template) { TaskTemplate.new(session, :foo => 'bar') }

@@ -1,7 +1,7 @@
 require 'test_helper'
 
 module Minionizer
-  class MinionizationTest < MiniTest::Unit::TestCase
+  class MinionizationTest < MiniTest::Test
 
     describe Minionization do
       let(:fqdn) { 'foo.bar.com' }

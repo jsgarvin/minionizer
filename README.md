@@ -9,9 +9,9 @@
 Minionizer aims to be a light weight, yet powerful, server provisioning tool with minimum learning
 curve.
 
-Minionizer is still in alpha development and is not yet ready for anything resembling production use.
+Minionizer is still in beta development and is not yet ready for anything resembling production use.
 
-# Overview
+## Overview
 
 Minionizer allows you keep all of your provisioning "recipies" for a set of servers, along with any
 data those recipies may need (such as config files), in a single git repository.
@@ -31,27 +31,31 @@ packages, etc. You can use these core commands to build more complex recipies, o
 minionizer plugins that WILL BE available, such as posgresql installationi/upgrade, ruby
 installation/upgrade, etc. 
 
-# Installation
+## Installation
 
     gem install minionizer
 
-# Usage
+## Demonstration
 
-## Setup a new provisioning project in the current folder.
+A demonstration repo is available at [https://github.com/jsgarvin/minionizer-demo](https://github.com/jsgarvin/minionizer-demo).
+
+## Usage
+
+### Setup a new provisioning project in the current folder.
 Note: This step doesn't actually work yet.
 
     minionize --init subfolder_name
 
 Creates `subfolder_name` and initializes it with some initial folders and files to get you started.
 
-## Modify config/minions.yml
+### Modify config/minions.yml
 
 The minions.yml file is where you define what servers this project will manage and what roles
 each server will play.
 
 You will probably want assign each server multiple roles, such as `['production', 'db']`.
 
-## Create role instructions
+### Create role instructions
 
 A sample role file WILL BE provided in the ./roles folder to get you started. Each role file defines
 what servers assigned that role should do on each (re)provisioning.
@@ -61,7 +65,7 @@ file. You will likely have some roles, such as "production", that are mearly a m
 several servers together and won't have a corresponding role file.  You will need at least one role,
 though, such as "db" or "webserver", that will have a corresponding role file.
 
-## Provision Servers
+### Provision Servers
 
 To provision all of the servers that are assigned a particular role, run...
 
@@ -79,7 +83,7 @@ or
 This will loop through each role that is assigned to just that server, and any corresponding role
 files will be run.
 
-# Contribute
+## Contribute
 
 To contribute to Minionizer development you will need to install [vagrant](http://www.vagrantup.com/)
 and [VirtualBox](https://www.virtualbox.org/) in order to be able to run acceptance tests.

@@ -4,7 +4,6 @@ require 'coveralls'
 require 'minitest/autorun'
 require 'fakefs/safe'
 require 'socket'
-require 'tempfile'
 require 'timeout'
 
 if Coveralls.will_run?

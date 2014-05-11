@@ -107,6 +107,7 @@ module Minionizer
         it 'injects a file' do
           2.times { assert_throws(:high_five) { minionization.call } }
           assert_file_exists(target_path)
+          assert_equal('FooBar', session.sudo("cat #{target_path}")[:stdout])
           mode = session.exec("stat --format=%a #{target_path}")[:stdout]
           assert_equal('700',mode)
           owner = session.exec("stat --format=%U #{target_path}")[:stdout]
@@ -142,6 +143,8 @@ module Minionizer
         it 'injects public keys' do
           2.times { assert_throws(:high_five) { minionization.call } }
           assert_file_exists("~#{target_username}/.ssh/authorized_keys")
+          assert_match(/FooBar/, session.sudo("cat ~#{target_username}/.ssh/authorized_keys")[:stdout])
+          assert_match(/FooBaz/, session.sudo("cat ~#{target_username}/.ssh/authorized_keys")[:stdout])
         end
       end
 

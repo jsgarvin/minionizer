@@ -6,8 +6,7 @@ module Minionizer
     describe PublicSshKeyInjection do
 
       describe '#call' do
-        let(:temp_file_path) { '/tmp/foobar' }
-        let(:temp_file_pointer) { OpenStruct.new(path: temp_file_path) }
+        let(:key) { 'foobar' }
         let(:file_injection) { 'MockFileInjection' }
         let(:file_injection_creator) { 'MockFileInjectionCreator' }
         let(:session) { 'MockSession' }
@@ -20,7 +19,7 @@ module Minionizer
         let(:expected_file_injection_options) {[
           session,
           {
-            :source_path => temp_file_path,
+            :contents => key,
             :target_path => "~#{username}/.ssh/authorized_keys",
             :owner => username,
             :group => username
@@ -28,10 +27,7 @@ module Minionizer
         ]}
 
         before do
-          temp_file_pointer.expects(:unlink)
-          Tempfile.expects(:new).yields(temp_file_pointer).returns(temp_file_pointer)
           write_file('data/public_keys/foobar.pubkey', 'foobar')
-          temp_file_pointer.expects(:puts).with('foobar')
         end
 
         it 'injects the file' do

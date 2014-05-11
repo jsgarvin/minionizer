@@ -3,7 +3,6 @@ require 'active_support/inflector'
 require 'erb'
 require 'net/ssh'
 require 'singleton'
-require 'tempfile'
 require 'yaml'
 
 require_relative 'core/task_template'

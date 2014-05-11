@@ -3,8 +3,6 @@ module Minionizer
 
     def call
       file_injection.call
-    ensure
-      temp_file.unlink
     end
 
     #######
@@ -21,17 +19,17 @@ module Minionizer
 
     def file_injection_options
       {
-        source_path: temp_file.path,
+        contents: combined_keys,
         target_path: "~#{target_username}/.ssh/authorized_keys",
         owner: target_username,
         group: target_username
       }
     end
 
-    def temp_file
-      @temp_file ||= Tempfile.new('MinionizerPublicKeys').tap do |temp_file|
+    def combined_keys
+      String.new.tap do |string|
         Dir.glob("data/public_keys/*.pubkey") do |key_file|
-          temp_file.puts File.open(key_file).read
+          string << File.open(key_file).read
         end
       end
     end

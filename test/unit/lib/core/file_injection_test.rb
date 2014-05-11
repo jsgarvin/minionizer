@@ -27,6 +27,14 @@ module Minionizer
 
         end
 
+        describe 'provides contents instead of source file' do
+          let(:options) {{ contents: source_contents, target_path: target_path }}
+
+          it 'writes the contents to the file' do
+            injection.call
+          end
+        end
+
         describe 'mode is provided' do
           let(:mode) { '0700' }
           let(:options) {{ source_path: source_path, target_path: target_path, mode: mode }}

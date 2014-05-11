@@ -18,6 +18,10 @@ module Minionizer
     end
 
     def contents
+      options[:contents] ||= contents_from_source_path
+    end
+
+    def contents_from_source_path
       File.open(source_path).read.strip
     end
   end

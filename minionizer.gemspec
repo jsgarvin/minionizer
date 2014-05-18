@@ -12,6 +12,7 @@ Gem::Specification.new do |s|
 
   s.add_dependency('activesupport', '~> 4.1')
   s.add_dependency('net-ssh', '~> 2.9')
+  s.add_dependency('net-scp', '~> 1.2')
 
   s.add_development_dependency('fakefs', '~> 0.5')
   s.add_development_dependency('mocha', '~> 1.0')

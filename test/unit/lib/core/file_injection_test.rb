@@ -7,15 +7,18 @@ module Minionizer
       let(:session) { 'MockSession' }
       let(:source_path) { 'data/source_file.txt'}
       let(:target_path) { '/var/target_file.txt'}
-      let(:injection) { FileInjection.new(session, options) }
+      let(:string_io_creator) { mock('StringIO') }
+      let(:injection) { FileInjection.new(session, options.merge(string_io_creator: string_io_creator)) }
 
       describe '#call' do
         let(:source_contents) { 'Source Contents' }
+        let(:string_io) { mock('StringIO') }
 
         before do
           write_file(source_path, source_contents)
+          string_io_creator.expects(:new).with(source_contents).returns(string_io)
           session.expects(:exec).with(%Q{mkdir --parents #{File.dirname(target_path)}})
-          session.expects(:exec).with(%Q{echo '#{source_contents}' > #{target_path}})
+          session.expects(:scp).with(string_io, target_path)
         end
 
         describe 'only source and target are provided' do

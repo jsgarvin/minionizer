@@ -3,7 +3,7 @@ module Minionizer
 
     def call
       session.exec("mkdir --parents #{target_directory}")
-      session.exec("echo '#{contents}' > #{target_path}")
+      session.scp(string_io_creator.new(contents), target_path)
       session.exec("chmod #{mode} #{target_path}") if respond_to?(:mode)
       session.exec("chown #{owner} #{target_path}") if respond_to?(:owner)
       session.exec("chgrp #{group} #{target_path}") if respond_to?(:group)
@@ -23,6 +23,10 @@ module Minionizer
 
     def contents_from_source_path
       File.open(source_path).read.strip
+    end
+
+    def string_io_creator
+      options[:string_io_creator] ||= StringIO
     end
   end
 end

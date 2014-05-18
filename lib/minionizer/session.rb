@@ -1,12 +1,14 @@
+require 'securerandom'
 module Minionizer
   class Session
-    attr_reader :fqdn, :username, :password, :connector, :command_executor
+    attr_reader :fqdn, :username, :password, :ssh_connector, :scp_connector, :command_executor
 
-    def initialize(fqdn, credentials, connector = Net::SSH, command_executor = CommandExecution)
+    def initialize(fqdn, credentials, ssh_connector=Net::SSH, scp_connector=Net::SCP, command_executor=CommandExecution)
       @fqdn = fqdn
       @username = credentials['username']
       @password = credentials['password']
-      @connector = connector
+      @ssh_connector = ssh_connector
+      @scp_connector = scp_connector
       @command_executor = command_executor
     end
 
@@ -26,20 +28,26 @@ module Minionizer
       results.length == 1 ? results.first : results
     end
 
+    def scp(local_path, remote_path)
+      if with_sudo?
+        tmp_filename = "#{SecureRandom.hex}.minionizer_tempfile"
+        scp_connection.upload!(local_path, "#{tmp_filename}")
+        exec("mv #{tmp_filename} #{remote_path}")
+      else
+        scp_connection.upload!(local_path, remote_path)
+      end
+    end
+
     #######
     private
     #######
 
     def execution(command)
       if with_sudo?
-        command_executor.new(connection, prefix_sudo(command))
+        command_executor.new(ssh_connection, prefix_sudo(command))
       else
-        command_executor.new(connection, command)
+        command_executor.new(ssh_connection, command)
       end
-    end
-
-    def connection
-      @connection ||= connector.start(fqdn, username, password: password)
     end
 
     def prefix_sudo(command)
@@ -48,6 +56,14 @@ module Minionizer
 
     def with_sudo?
       @with_sudo
+    end
+
+    def ssh_connection
+      @ssh_connection ||= ssh_connector.start(fqdn, username, password: password)
+    end
+
+    def scp_connection
+      @scp_connection ||= scp_connector.start(fqdn, username, password: password)
     end
 
   end

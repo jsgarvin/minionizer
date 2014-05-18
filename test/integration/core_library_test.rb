@@ -88,8 +88,8 @@ module Minionizer
           group: ownername
         }}
         let(:code) { %Q{
-          session.sudo do
-            Minionizer::FileInjection.new( session, #{options}).call
+          session.sudo do |sudo_session|
+            Minionizer::FileInjection.new(sudo_session, #{options}).call
           end
         } }
 
@@ -138,11 +138,13 @@ module Minionizer
         after do
           File.delete("#{source_path}/foobar.pubkey")
           File.delete("#{source_path}/foobaz.pubkey")
+          skip unless minion_available?
+          session.sudo("userdel #{target_username}")
         end
 
         it 'injects public keys' do
           2.times { assert_throws(:high_five) { minionization.call } }
-          assert_file_exists("~#{target_username}/.ssh/authorized_keys")
+          assert_file_exists("/home/#{target_username}/.ssh/authorized_keys")
           assert_match(/FooBar/, session.sudo("cat ~#{target_username}/.ssh/authorized_keys")[:stdout])
           assert_match(/FooBaz/, session.sudo("cat ~#{target_username}/.ssh/authorized_keys")[:stdout])
         end
@@ -176,7 +178,7 @@ module Minionizer
       end
 
       def link_exists?(path, parameter = :e)
-        session.exec("[ -#{parameter} #{path} ] && echo 'yes' || echo 'no'")[:stdout] == 'yes'
+        session.sudo("[ -#{parameter} #{path} ] && echo 'yes' || echo 'no'")[:stdout] == 'yes'
       end
 
       def assert_user_exists(username)

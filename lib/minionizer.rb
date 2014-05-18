@@ -1,6 +1,7 @@
 require 'active_support/core_ext/hash/indifferent_access'
 require 'active_support/inflector'
 require 'erb'
+require 'net/scp'
 require 'net/ssh'
 require 'singleton'
 require 'yaml'

@@ -18,11 +18,31 @@ module Minionizer
     end
 
     def contents
-      options[:contents] ||= contents_from_source_path
+      options[:contents] ||= processed_contents_from_source_path
+    end
+
+    def processed_contents_from_source_path
+      if source_file_requires_erb_processing?
+        ERB.new(contents_from_source_path).result(erb_binding)
+      else
+        contents_from_source_path
+      end
+    end
+
+    def source_file_requires_erb_processing?
+      File.extname(source_path) == '.erb'
     end
 
     def contents_from_source_path
       File.open(source_path).read.strip
+    end
+
+    def erb_binding
+      level = 1
+      until binding.of_caller(level).eval('self.class') != self.class
+        level += 1
+      end
+      binding.of_caller(level)
     end
 
     def string_io_creator

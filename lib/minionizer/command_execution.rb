@@ -52,7 +52,7 @@ module Minionizer
 
     def compile_results(channel)
       channel.on_data { |_, data| results[:stdout] += data.strip }
-      channel.on_extended_data { |_, data| results[:stderr] += data.to_s }
+      channel.on_extended_data { |_, _, data| results[:stderr] += data.to_s }
       channel.on_request('exit-status') { |_,data| results[:exit_code] = data.read_long }
       channel.on_request('exit-signal') { |_,data| results[:exit_signal] = data.read_string }
     end

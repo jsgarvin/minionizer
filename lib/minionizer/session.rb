@@ -24,7 +24,8 @@ module Minionizer
     end
 
     def exec(*commands)
-      results = commands.map { |command| execution(command).call }
+      options = commands.last.is_a?(Hash) ? commands.pop : {}
+      results = commands.map { |command| execution(command, options).call }
       results.length == 1 ? results.first : results
     end
 
@@ -42,11 +43,11 @@ module Minionizer
     private
     #######
 
-    def execution(command)
+    def execution(command, options={})
       if with_sudo?
-        command_executor.new(ssh_connection, prefix_sudo(command))
+        command_executor.new(ssh_connection, prefix_sudo(command), options)
       else
-        command_executor.new(ssh_connection, command)
+        command_executor.new(ssh_connection, command, options)
       end
     end
 

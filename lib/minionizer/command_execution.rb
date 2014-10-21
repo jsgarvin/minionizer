@@ -4,11 +4,12 @@ module Minionizer
     class CommandError < StandardError; end
     class InvocationError < StandardError; end
 
-    attr_reader :connection, :command
+    attr_reader :connection, :command, :options
 
-    def initialize(connection, command)
+    def initialize(connection, command, options={})
       @connection = connection
       @command = command
+      @options = options
     end
 
     def call
@@ -27,6 +28,7 @@ module Minionizer
     end
 
     def execute_command_inside_channel(channel)
+      inform("Running: #{command}")
       channel.exec(command) do |_, success|
         if success
           compile_results(channel)
@@ -51,10 +53,21 @@ module Minionizer
     end
 
     def compile_results(channel)
-      channel.on_data { |_, data| results[:stdout] += data.strip }
+      read_stdout(channel)
       channel.on_extended_data { |_, _, data| results[:stderr] += data.to_s }
       channel.on_request('exit-status') { |_,data| results[:exit_code] = data.read_long }
       channel.on_request('exit-signal') { |_,data| results[:exit_signal] = data.read_string }
+    end
+
+    def read_stdout(channel)
+      channel.on_data do |_, data|
+        inform("STDOUT: #{data}")
+        results[:stdout] += data.strip
+      end
+    end
+
+    def inform(message)
+      puts message if options[:verbose]
     end
   end
 end

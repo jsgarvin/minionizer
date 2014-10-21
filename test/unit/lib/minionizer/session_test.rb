@@ -51,7 +51,7 @@ module Minionizer
             scp_connection.expects(:upload!).with(source_path, temp_filename)
             command_executor.
               expects(:new).
-              with(ssh_connection, sudoized("mv #{temp_filename} #{target_path}")).
+              with(ssh_connection, sudoized("mv #{temp_filename} #{target_path}"), {}).
               returns(OpenStruct.new(:call => true))
             session.sudo do |sudo_session|
               sudo_session.scp(source_path, target_path)
@@ -75,7 +75,7 @@ module Minionizer
             it 'prepends sudo onto the command line' do
               command_executor.
                 expects(:new).
-                with(ssh_connection, sudoized(command)).
+                with(ssh_connection, sudoized(command), {}).
                 returns(OpenStruct.new(:call => true))
               session.sudo do
                 session.exec(command)
@@ -88,7 +88,7 @@ module Minionizer
             it 'prepends sudo onto the command line' do
               command_executor.
                 expects(:new).
-                with(ssh_connection, sudoized(command)).
+                with(ssh_connection, sudoized(command), {}).
                 returns(OpenStruct.new(:call => true))
               session.sudo(command)
             end
@@ -102,7 +102,7 @@ module Minionizer
               commands.each do |command|
                 command_executor.
                   expects(:new).
-                  with(ssh_connection, sudoized(command)).
+                  with(ssh_connection, sudoized(command), {}).
                   returns(OpenStruct.new(:call => true))
               end
               session.sudo(*commands)
@@ -118,7 +118,7 @@ module Minionizer
           it 'passes the command to the executor' do
             command_executor.
               expects(:new).
-              with(ssh_connection, command).
+              with(ssh_connection, command, {}).
               returns(OpenStruct.new(:call => true))
             session.exec(command)
           end
@@ -132,7 +132,7 @@ module Minionizer
             commands.each do |command|
               command_executor.
                 expects(:new).
-                with(ssh_connection, command).
+                with(ssh_connection, command, {}).
                 returns(OpenStruct.new(:call => true))
             end
             session.exec(*commands)

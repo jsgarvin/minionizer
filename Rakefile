@@ -14,6 +14,7 @@ end
 
 namespace :test do
   namespace :vm do
+    desc 'Start Test VM'
     task :start do
       relay_output(vagrant_command(:up))
       unless snapshot_plugin_installed?
@@ -24,6 +25,7 @@ namespace :test do
         relay_output(vagrant_command('snapshot take blank-test-slate'))
       end
     end
+    desc 'Stop Test VM'
     task :stop do
       relay_output(vagrant_command(:halt))
     end

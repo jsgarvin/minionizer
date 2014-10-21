@@ -19,6 +19,9 @@ module Minionizer
       options.key?(method_name) || super
     end
 
+    def download_file(source, destination)
+      session.exec(%Q{bash -c "mkdir -p #{destination}; cd #{destination}; wget -nc #{source}"})
+    end
   end
 end
 

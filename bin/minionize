@@ -1,3 +1,11 @@
 #!/usr/bin/env ruby
 require_relative '../lib/minionizer'
-Minionizer::Minionization.new(ARGV, Minionizer::Configuration.instance).call
+if ['-gk','--generate-key'].include?(ARGV[0])
+  Minionizer::Cryptographer.new.generate_key
+elsif ['-es','--encrypt-secrets'].include?(ARGV[0])
+  Minionizer::Cryptographer.new.encrypt_secrets
+elsif ['-ds','--decrypt-secrets'].include?(ARGV[0])
+  Minionizer::Cryptographer.new.decrypt_secrets
+else
+  Minionizer::Minionization.new(ARGV, Minionizer::Configuration.instance).call
+end

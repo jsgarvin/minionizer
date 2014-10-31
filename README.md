@@ -42,7 +42,6 @@ A demonstration repo is available at [https://github.com/jsgarvin/minionizer-dem
 ## Usage
 
 ### Setup a new provisioning project in the current folder.
-Note: This step doesn't actually work yet.
 
     minionize --init subfolder_name
 

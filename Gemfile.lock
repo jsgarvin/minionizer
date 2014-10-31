@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    minionizer (0.1.0)
+    minionizer (0.2.0)
       activesupport (~> 4.1)
       binding_of_caller (~> 0.7)
       net-scp (~> 1.2)

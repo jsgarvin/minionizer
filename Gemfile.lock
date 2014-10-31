@@ -63,5 +63,6 @@ DEPENDENCIES
   coveralls
   fakefs (~> 0.5)
   minionizer!
+  minitest (~> 5.4)
   mocha (~> 1.0)
   rake (~> 10.3)

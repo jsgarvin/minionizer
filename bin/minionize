@@ -1,6 +1,8 @@
 #!/usr/bin/env ruby
 require_relative '../lib/minionizer'
-if ['-gk','--generate-key'].include?(ARGV[0])
+if ARGV[0] == '--init'
+  Minionizer::Initialization.create(ARGV[1])
+elsif ['-gk','--generate-key'].include?(ARGV[0])
   Minionizer::Cryptographer.new.generate_key
 elsif ['-es','--encrypt-secrets'].include?(ARGV[0])
   Minionizer::Cryptographer.new.encrypt_secrets

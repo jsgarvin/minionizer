@@ -34,7 +34,7 @@ module Minionizer
     end
 
     def contents_from_source_path
-      File.open(source_path).read.strip
+      File.open(source_path).read
     end
 
     def erb_binding

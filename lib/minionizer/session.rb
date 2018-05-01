@@ -1,12 +1,15 @@
 require 'securerandom'
 module Minionizer
   class Session
-    attr_reader :fqdn, :username, :password, :ssh_connector, :scp_connector, :command_executor
+    attr_reader :minion, :ssh_connector, :scp_connector, :command_executor
 
-    def initialize(fqdn, credentials, ssh_connector=Net::SSH, scp_connector=Net::SCP, command_executor=CommandExecution)
-      @fqdn = fqdn
-      @username = credentials['username']
-      @password = credentials['password']
+    delegate :fqdn, :config, to: :minion
+
+    def initialize(minion,
+                   ssh_connector=Net::SSH,
+                   scp_connector=Net::SCP,
+                   command_executor=CommandExecution)
+      @minion = minion
       @ssh_connector = ssh_connector
       @scp_connector = scp_connector
       @command_executor = command_executor
@@ -60,12 +63,15 @@ module Minionizer
     end
 
     def ssh_connection
-      @ssh_connection ||= ssh_connector.start(fqdn, username, password: password)
+      @ssh_connection ||= ssh_connector.start(*connection_args)
     end
 
     def scp_connection
-      @scp_connection ||= scp_connector.start(fqdn, username, password: password)
+      @scp_connection ||= scp_connector.start(*connection_args)
     end
 
+    def connection_args
+      [fqdn, config['ssh']['username'], password: config['ssh']['password']]
+    end
   end
 end

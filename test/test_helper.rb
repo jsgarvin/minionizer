@@ -190,4 +190,3 @@ module FakeFS
     end
   end
 end
-

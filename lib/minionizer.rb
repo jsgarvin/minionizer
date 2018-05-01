@@ -1,4 +1,5 @@
 require 'active_support/core_ext/hash/indifferent_access'
+require 'active_support/core_ext/module/delegation'
 require 'active_support/inflector'
 require 'binding_of_caller'
 require 'erb'

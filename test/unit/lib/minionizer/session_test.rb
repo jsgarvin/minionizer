@@ -7,15 +7,24 @@ module Minionizer
       let(:fqdn) { 'foo.bar.com' }
       let(:username) { 'foo' }
       let(:password) { 'bar' }
-      let(:credentials) {{ 'username' => username, 'password' => password }}
+      let(:config) do
+        { 'ssh' => { 'username' => username,
+                     'password' => password }}
+      end
+      let(:minion) { mock('minion') }
       let(:ssh_connector) { mock('ssh_connector') }
       let(:scp_connector) { mock('scp_connector') }
       let(:command_executor) { mock('CommandExecution') }
       let(:execution) { mock('execution') }
       let(:ssh_connection) { mock('ssh_connection') }
       let(:scp_connection) { mock('scp_connection') }
-      let(:session) { Session.new(fqdn, credentials, ssh_connector, scp_connector, command_executor) }
+      let(:session) { Session.new(minion, ssh_connector, scp_connector, command_executor) }
       let(:start_args) { [fqdn, username, { password: password }]}
+
+      before do
+        minion.stubs(:config).returns(config)
+        minion.stubs(:fqdn).returns(fqdn)
+      end
 
       it 'instantiates' do
         assert_kind_of(Session, session)
@@ -65,7 +74,9 @@ module Minionizer
         let(:command) { 'foobar' }
 
         before do
-          ssh_connector.expects(:start).with(*start_args).returns(ssh_connection)
+          ssh_connector.expects(:start)
+                       .with(*start_args)
+                       .returns(ssh_connection)
         end
 
         describe '#sudo' do

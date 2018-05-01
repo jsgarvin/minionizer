@@ -25,7 +25,7 @@ module Minionizer
         let(:session) { quacks_like_instance_of(Session) }
 
         it 'creates a session' do
-          session_constructor.expects(:new).with(fqdn, credentials).returns(session)
+          session_constructor.expects(:new).with(minion).returns(session)
           minion.session
         end
       end
@@ -40,5 +40,3 @@ module Minionizer
     end
   end
 end
-
-

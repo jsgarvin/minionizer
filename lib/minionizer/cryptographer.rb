@@ -44,7 +44,7 @@ module Minionizer
         puts "Skipping: #{filename} (shas match)"
       else
         puts "Decrypting: #{filename}"
-        system("#{gpg_command} --output #{SECRET_FOLDER}/#{decrypted_filename(filename)} --decrypt #{SAFE_FOLDER}/#{filename}")
+        system("#{gpg_command} --use-agent --output #{SECRET_FOLDER}/#{decrypted_filename(filename)} --decrypt #{SAFE_FOLDER}/#{filename}")
       end
     end
 

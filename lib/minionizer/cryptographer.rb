@@ -11,6 +11,7 @@ module Minionizer
     def encrypt_secrets
       Dir.foreach(SECRET_FOLDER) do |filename|
         next if ['.','..'].include?(filename)
+        next if filename.match(/^\./)
         encrypt_and_rehash(filename)
       end
     end

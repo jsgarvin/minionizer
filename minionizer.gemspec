@@ -10,7 +10,7 @@ Gem::Specification.new do |s|
   s.summary = %q{Simple server provisioning and management.}
   s.description = %q{Minionizer aims to be a light weight server provisioning tool without bloat or steep learning curves.}
 
-  s.add_dependency('activesupport', '~> 5.2')
+  s.add_dependency('activesupport', '>= 5.2', '< 7.0')
   s.add_dependency('binding_of_caller', '~> 0.8')
   s.add_dependency('net-ssh', '~> 5.2')
   s.add_dependency('net-scp', '~> 2.0')
